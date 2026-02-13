@@ -1,0 +1,63 @@
+import { useState, useEffect, createContext, useContext, useCallback } from 'react';
+
+const ToastContext = createContext(null);
+
+const TOAST_TYPES = {
+  success: { bg: 'bg-success', icon: '\u2705' },
+  error: { bg: 'bg-danger', icon: '\u274C' },
+  warning: { bg: 'bg-warning', icon: '\u26A0\uFE0F' },
+  info: { bg: 'bg-accent', icon: '\u2139\uFE0F' }
+};
+
+export function ToastProvider({ children }) {
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = useCallback((message, type = 'info', duration = 4000) => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type }]);
+
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, duration);
+  }, []);
+
+  const removeToast = useCallback((id) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  }, []);
+
+  return (
+    <ToastContext.Provider value={{ addToast }}>
+      {children}
+
+      {/* Toast Container */}
+      <div className="fixed bottom-20 right-4 z-[60] flex flex-col gap-2 pointer-events-none">
+        {toasts.map((toast) => {
+          const config = TOAST_TYPES[toast.type] || TOAST_TYPES.info;
+          return (
+            <div
+              key={toast.id}
+              className={`${config.bg} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 min-w-[280px] pointer-events-auto animate-slide-up`}
+            >
+              <span>{config.icon}</span>
+              <span className="text-sm font-medium flex-1">{toast.message}</span>
+              <button
+                onClick={() => removeToast(toast.id)}
+                className="text-white/80 hover:text-white text-lg leading-none"
+              >
+                &times;
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </ToastContext.Provider>
+  );
+}
+
+export function useToast() {
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error('useToast must be used within a ToastProvider');
+  }
+  return context;
+}

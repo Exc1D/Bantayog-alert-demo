@@ -103,8 +103,8 @@ export async function submitReport(reportData, evidenceFiles, user) {
   const imageFiles = evidenceFiles.filter(f => f.type.startsWith('image/'));
   const videoFiles = evidenceFiles.filter(f => f.type.startsWith('video/'));
 
-  // Upload each file individually, skipping failures
-  const imageResults = await Promise.all(
+  // Start all three groups in parallel; each file fails independently
+  const imageResultsPromise = Promise.all(
     imageFiles.map(async (photo, index) => {
       try {
         const [compressed, thumbnail] = await Promise.all([
@@ -128,28 +128,28 @@ export async function submitReport(reportData, evidenceFiles, user) {
 
         return { photoUrl, thumbUrl };
       } catch (err) {
-        console.warn('Image upload failed, skipping:', err);
+        console.warn('Image upload failed, skipping:', photo.name, err);
         return null;
       }
     })
   );
 
-  const videoUrls = await Promise.all(
+  const videoUrlsPromise = Promise.all(
     videoFiles.map(async (video, index) => {
       try {
         const ts = Date.now() + index;
         const videoRef = ref(storage, `reports/videos/${ts}_${video.name}`);
         await uploadBytes(videoRef, video);
-        return getDownloadURL(videoRef);
+        return await getDownloadURL(videoRef);
       } catch (err) {
-        console.warn('Video upload failed, skipping:', err);
+        console.warn('Video upload failed, skipping:', video.name, err);
         return null;
       }
     })
   );
 
-  // Fetch weather (non-blocking)
-  const weatherContext = await fetchCurrentWeather(
+  // Weather fetch runs in parallel with uploads; errors fall back to {}
+  const weatherContextPromise = fetchCurrentWeather(
     reportData.location.lat,
     reportData.location.lng
   ).catch((e) => {
@@ -157,11 +157,19 @@ export async function submitReport(reportData, evidenceFiles, user) {
     return {};
   });
 
-  // Filter out failed uploads
+  const [imageResults, videoUrls, weatherContext] = await Promise.all([
+    imageResultsPromise,
+    videoUrlsPromise,
+    weatherContextPromise,
+  ]);
+
+  // Filter out failed uploads and surface a summary to the caller
   const successfulImages = imageResults.filter(Boolean);
   const photoUrls = successfulImages.map(r => r.photoUrl);
   const thumbnailUrls = successfulImages.map(r => r.thumbUrl);
   const successfulVideos = videoUrls.filter(Boolean);
+  const skippedFiles = (imageFiles.length - successfulImages.length) +
+                       (videoFiles.length - successfulVideos.length);
 
   // Build report document
   const report = {
@@ -218,7 +226,7 @@ export async function submitReport(reportData, evidenceFiles, user) {
   };
 
   const docRef = await addDoc(collection(db, 'reports'), report);
-  return docRef.id;
+  return { id: docRef.id, skippedFiles };
 }
 
 export async function upvoteReport(reportId, userId) {

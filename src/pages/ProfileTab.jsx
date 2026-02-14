@@ -52,16 +52,24 @@ function AuthForm() {
     }
   };
 
+  const inputClass = "w-full border border-stone-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent bg-white";
+
   return (
     <div className="max-w-md mx-auto">
-      <div className="bg-white rounded-xl p-6 shadow-sm">
-        <div className="text-center mb-6">
-          <span className="text-4xl">{'\u{1F6E1}\uFE0F'}</span>
-          <h2 className="text-xl font-bold mt-2">
+      <div className="bg-white rounded-xl p-5 shadow-card border border-stone-100">
+        <div className="text-center mb-5">
+          <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e63946" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          </div>
+          <h2 className="text-lg font-bold">
             {isLogin ? 'Sign In' : 'Create Account'}
           </h2>
-          <p className="text-sm text-textLight">
-            {isLogin ? 'Sign in to submit reports' : 'Join the Bantayog Alert community'}
+          <p className="text-xs text-textLight mt-1">
+            {isLogin ? 'Sign in to submit hazard reports' : 'Join Bantayog Alert'}
           </p>
         </div>
 
@@ -69,22 +77,22 @@ function AuthForm() {
           {!isLogin && (
             <>
               <div>
-                <label className="block text-sm font-semibold mb-1">Full Name</label>
+                <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">Full Name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full border-2 border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-accent focus:border-accent"
+                  className={inputClass}
                   placeholder="Juan dela Cruz"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1">Municipality</label>
+                <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">Municipality</label>
                 <select
                   value={municipality}
                   onChange={(e) => setMunicipality(e.target.value)}
-                  className="w-full border-2 border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-accent focus:border-accent"
+                  className={inputClass}
                 >
                   <option value="">Select Municipality</option>
                   {MUNICIPALITIES.map(m => (
@@ -96,24 +104,24 @@ function AuthForm() {
           )}
 
           <div>
-            <label className="block text-sm font-semibold mb-1">Email</label>
+            <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border-2 border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-accent focus:border-accent"
+              className={inputClass}
               placeholder="your@email.com"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold mb-1">Password</label>
+            <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border-2 border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-accent focus:border-accent"
+              className={inputClass}
               placeholder="Min 6 characters"
               minLength={6}
               required
@@ -130,16 +138,16 @@ function AuthForm() {
           </Button>
         </form>
 
-        <div className="mt-4 text-center">
+        <div className="mt-3 text-center">
           <button
             onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-accent hover:underline"
+            className="text-xs text-accent hover:underline font-medium"
           >
             {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
           </button>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-gray-100">
+        <div className="mt-3 pt-3 border-t border-stone-100">
           <Button
             variant="ghost"
             onClick={handleGuest}
@@ -168,19 +176,19 @@ function UserProfile() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Profile Card */}
-      <div className="bg-white rounded-xl p-6 shadow-sm">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-accent to-secondary rounded-full flex items-center justify-center text-white text-2xl font-bold">
+      <div className="bg-white rounded-xl p-5 shadow-card border border-stone-100">
+        <div className="flex items-center gap-3">
+          <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center text-white text-xl font-bold shrink-0">
             {(userProfile?.name || user?.displayName || 'U')[0].toUpperCase()}
           </div>
-          <div>
-            <h2 className="text-xl font-bold">
+          <div className="min-w-0">
+            <h2 className="text-lg font-bold truncate">
               {userProfile?.name || user?.displayName || 'Anonymous User'}
             </h2>
-            <p className="text-sm text-textLight">{user?.email || 'Guest'}</p>
-            <p className="text-xs text-textLight capitalize mt-0.5">
+            <p className="text-xs text-textLight">{user?.email || 'Guest'}</p>
+            <p className="text-[11px] text-textMuted capitalize mt-0.5">
               {userProfile?.role?.replace('_', ' ') || 'Citizen'}
               {userProfile?.municipality ? ` \u2022 ${userProfile.municipality}` : ''}
             </p>
@@ -189,18 +197,18 @@ function UserProfile() {
 
         {/* Stats */}
         {userProfile?.stats && (
-          <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-gray-100">
+          <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-stone-100">
             <div className="text-center">
-              <p className="text-2xl font-bold text-accent">{userProfile.stats.reportsSubmitted}</p>
-              <p className="text-xs text-textLight">Reports</p>
+              <p className="text-xl font-bold text-accent">{userProfile.stats.reportsSubmitted}</p>
+              <p className="text-[10px] text-textLight uppercase tracking-wider font-semibold">Reports</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-success">{userProfile.stats.reportsVerified}</p>
-              <p className="text-xs text-textLight">Verified</p>
+              <p className="text-xl font-bold text-emerald-600">{userProfile.stats.reportsVerified}</p>
+              <p className="text-[10px] text-textLight uppercase tracking-wider font-semibold">Verified</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-warning">{userProfile.stats.upvotesReceived}</p>
-              <p className="text-xs text-textLight">Upvotes</p>
+              <p className="text-xl font-bold text-amber-500">{userProfile.stats.upvotesReceived}</p>
+              <p className="text-[10px] text-textLight uppercase tracking-wider font-semibold">Upvotes</p>
             </div>
           </div>
         )}
@@ -227,14 +235,14 @@ export default function ProfileTab() {
     return (
       <div className="max-w-[800px] mx-auto px-4 py-4">
         <div className="text-center py-12">
-          <p className="text-textLight">Loading...</p>
+          <p className="text-textLight text-sm">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-[800px] mx-auto px-4 py-4">
+    <div className="max-w-[800px] mx-auto px-3 py-3 sm:px-4 sm:py-4">
       {user ? <UserProfile /> : <AuthForm />}
     </div>
   );

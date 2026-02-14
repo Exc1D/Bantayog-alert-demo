@@ -1,12 +1,12 @@
-import { useState, useEffect, createContext, useContext, useCallback } from 'react';
+import { useState, createContext, useContext, useCallback } from 'react';
 
 const ToastContext = createContext(null);
 
 const TOAST_TYPES = {
-  success: { bg: 'bg-success', icon: '\u2705' },
-  error: { bg: 'bg-danger', icon: '\u274C' },
-  warning: { bg: 'bg-warning', icon: '\u26A0\uFE0F' },
-  info: { bg: 'bg-accent', icon: '\u2139\uFE0F' }
+  success: { bg: 'bg-emerald-600', icon: '\u2705' },
+  error: { bg: 'bg-red-600', icon: '\u274C' },
+  warning: { bg: 'bg-amber-600', icon: '\u26A0\uFE0F' },
+  info: { bg: 'bg-primary', icon: '\u2139\uFE0F' }
 };
 
 export function ToastProvider({ children }) {
@@ -36,13 +36,13 @@ export function ToastProvider({ children }) {
           return (
             <div
               key={toast.id}
-              className={`${config.bg} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 min-w-[280px] pointer-events-auto animate-slide-up`}
+              className={`${config.bg} text-white px-4 py-3 rounded-lg shadow-dark flex items-center gap-2.5 min-w-[280px] max-w-[360px] pointer-events-auto animate-slide-up`}
             >
-              <span>{config.icon}</span>
+              <span className="text-base">{config.icon}</span>
               <span className="text-sm font-medium flex-1">{toast.message}</span>
               <button
                 onClick={() => removeToast(toast.id)}
-                className="text-white/80 hover:text-white text-lg leading-none"
+                className="text-white/60 hover:text-white text-lg leading-none ml-1"
               >
                 &times;
               </button>

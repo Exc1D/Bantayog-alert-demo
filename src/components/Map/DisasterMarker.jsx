@@ -4,69 +4,59 @@ import { getDisasterType } from '../../data/disasterTypes';
 import { MARKER_COLORS, DISASTER_ICONS } from '../../utils/constants';
 import { formatTimeAgo } from '../../utils/timeUtils';
 
-function createMarkerIcon(type, status) {
+function createMarkerIcon(type, severity, status) {
   const color = MARKER_COLORS[type] || MARKER_COLORS.other;
   const icon = DISASTER_ICONS[type] || DISASTER_ICONS.other;
-  const opacity = status === 'verified' || status === 'resolved' ? 1 : 0.6;
-  const borderColor = status === 'resolved' ? '#10b981' : 'white';
+  const opacity = status === 'verified' || status === 'resolved' ? 1 : 0.7;
+  const borderColor = status === 'resolved' ? '#16a34a' : severity === 'critical' ? '#dc2626' : '#ffffff';
+  const size = severity === 'critical' ? 44 : 38;
 
   return L.divIcon({
     html: `
       <div style="
         background: ${color};
-        width: 40px;
-        height: 40px;
+        width: ${size}px;
+        height: ${size}px;
         border-radius: 50%;
         border: 3px solid ${borderColor};
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.35);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 20px;
+        font-size: ${severity === 'critical' ? 22 : 18}px;
         opacity: ${opacity};
+        transition: transform 0.2s;
       ">
         ${icon}
       </div>
     `,
     className: 'custom-marker',
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    popupAnchor: [0, -20]
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -(size / 2)]
   });
-}
-
-function SeverityBadge({ severity }) {
-  const colors = {
-    critical: 'bg-red-100 text-red-800',
-    moderate: 'bg-yellow-100 text-yellow-800',
-    minor: 'bg-green-100 text-green-800'
-  };
-
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${colors[severity] || colors.minor}`}>
-      {severity}
-    </span>
-  );
-}
-
-function StatusBadge({ status }) {
-  const colors = {
-    pending: 'bg-gray-100 text-gray-800',
-    verified: 'bg-blue-100 text-blue-800',
-    rejected: 'bg-red-100 text-red-800',
-    resolved: 'bg-green-100 text-green-800'
-  };
-
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${colors[status] || colors.pending}`}>
-      {status}
-    </span>
-  );
 }
 
 export default function DisasterMarker({ report, onClick }) {
   const disasterType = getDisasterType(report.disaster?.type);
-  const icon = createMarkerIcon(report.disaster?.type, report.verification?.status);
+  const icon = createMarkerIcon(
+    report.disaster?.type,
+    report.disaster?.severity,
+    report.verification?.status
+  );
+
+  const sevStyles = {
+    critical: 'bg-red-600 text-white',
+    moderate: 'bg-amber-500 text-white',
+    minor: 'bg-emerald-600 text-white'
+  };
+
+  const statusStyles = {
+    pending: 'bg-stone-200 text-stone-700',
+    verified: 'bg-blue-100 text-blue-700',
+    rejected: 'bg-red-100 text-red-700',
+    resolved: 'bg-emerald-100 text-emerald-700'
+  };
 
   return (
     <Marker
@@ -77,31 +67,35 @@ export default function DisasterMarker({ report, onClick }) {
       }}
     >
       <Popup>
-        <div className="font-sans min-w-[220px] max-w-[280px]">
-          <h3 className="font-bold text-lg mb-1 flex items-center gap-1">
-            <span>{disasterType.icon}</span>
-            <span className="uppercase">{disasterType.label}</span>
-          </h3>
+        <div className="font-sans min-w-[200px] max-w-[260px]">
+          <div className="flex items-center gap-1.5 mb-1">
+            <span className="text-base">{disasterType.icon}</span>
+            <span className="font-bold text-sm uppercase tracking-wide">{disasterType.label}</span>
+          </div>
 
-          <p className="font-semibold text-sm">{report.location.municipality}</p>
+          <p className="font-medium text-xs text-text">{report.location.municipality}</p>
           {report.location.street && (
-            <p className="text-xs text-gray-500">{report.location.street}</p>
+            <p className="text-[11px] text-textLight">{report.location.street}</p>
           )}
 
-          <p className="text-sm my-2 line-clamp-3">{report.disaster?.description}</p>
+          <p className="text-xs my-2 line-clamp-3 leading-relaxed">{report.disaster?.description}</p>
 
           {report.disaster?.waterLevel && (
-            <p className="text-xs bg-blue-50 rounded px-2 py-1 mb-2">
+            <p className="text-[11px] bg-blue-50 border border-blue-100 rounded px-2 py-1 mb-2 font-medium text-blue-700">
               Water Level: {report.disaster.waterLevel}cm
             </p>
           )}
 
-          <div className="flex items-center gap-2 mb-2">
-            <SeverityBadge severity={report.disaster?.severity} />
-            <StatusBadge status={report.verification?.status} />
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide ${sevStyles[report.disaster?.severity] || sevStyles.minor}`}>
+              {report.disaster?.severity}
+            </span>
+            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide ${statusStyles[report.verification?.status] || statusStyles.pending}`}>
+              {report.verification?.status}
+            </span>
           </div>
 
-          <p className="text-xs text-gray-400">
+          <p className="text-[10px] text-textMuted">
             {formatTimeAgo(report.timestamp)}
           </p>
 
@@ -109,7 +103,7 @@ export default function DisasterMarker({ report, onClick }) {
             <img
               src={report.media.photos[0]}
               alt="Report"
-              className="w-full h-24 object-cover rounded mt-2"
+              className="w-full h-20 object-cover rounded-lg mt-2 border border-stone-200"
             />
           )}
         </div>

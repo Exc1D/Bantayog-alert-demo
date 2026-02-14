@@ -11,7 +11,7 @@ import { submitReport } from '../../hooks/useReports';
 import { detectMunicipality } from '../../utils/geoFencing';
 
 export default function ReportModal({ isOpen, onClose }) {
-  const [step, setStep] = useState(1); // 1 = select type, 2 = fill form
+  const [step, setStep] = useState(1);
   const [selectedType, setSelectedType] = useState(null);
   const [formData, setFormData] = useState({});
   const [photos, setPhotos] = useState([]);
@@ -40,7 +40,6 @@ export default function ReportModal({ isOpen, onClose }) {
   };
 
   const handleSubmit = async () => {
-    // Validation
     if (!formData.severity) {
       addToast('Please select a severity level', 'warning');
       return;
@@ -79,7 +78,7 @@ export default function ReportModal({ isOpen, onClose }) {
 
       await submitReport(reportData, photos, user);
 
-      addToast('Report submitted! Waiting for verification.', 'success');
+      addToast('Report submitted successfully.', 'success');
       handleClose();
     } catch (error) {
       addToast('Failed to submit report. Please try again.', 'error');
@@ -101,7 +100,7 @@ export default function ReportModal({ isOpen, onClose }) {
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={step === 1 ? 'Report a Disaster' : `Report: ${selectedType?.label}`}
+      title={step === 1 ? 'REPORT HAZARD' : `Report: ${selectedType?.label}`}
     >
       {step === 1 && (
         <DisasterTypeSelector

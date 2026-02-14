@@ -1,15 +1,15 @@
 const VARIANTS = {
-  primary: 'bg-secondary text-white hover:bg-blue-800 focus:ring-blue-300',
-  secondary: 'bg-white text-text border-2 border-border hover:bg-gray-50 focus:ring-gray-300',
-  danger: 'bg-danger text-white hover:bg-red-600 focus:ring-red-300',
-  success: 'bg-success text-white hover:bg-emerald-600 focus:ring-emerald-300',
+  primary: 'bg-accent text-white hover:bg-accentDark focus:ring-red-300',
+  secondary: 'bg-white text-text border border-border hover:bg-gray-50 focus:ring-gray-300',
+  danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-300',
+  success: 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-300',
   warning: 'bg-warning text-white hover:bg-amber-600 focus:ring-amber-300',
-  ghost: 'text-textLight hover:text-text hover:bg-gray-100'
+  ghost: 'text-textLight hover:text-text hover:bg-stone-100'
 };
 
 const SIZES = {
   sm: 'px-3 py-1.5 text-xs',
-  md: 'px-4 py-2 text-sm',
+  md: 'px-4 py-2.5 text-sm',
   lg: 'px-6 py-3 text-base'
 };
 
@@ -32,7 +32,7 @@ export default function Button({
       className={`
         inline-flex items-center justify-center gap-2 rounded-lg font-semibold
         transition-all duration-200 focus:outline-none focus:ring-2
-        disabled:opacity-50 disabled:cursor-not-allowed
+        disabled:opacity-40 disabled:cursor-not-allowed
         ${VARIANTS[variant]}
         ${SIZES[size]}
         ${className}

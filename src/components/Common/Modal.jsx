@@ -15,22 +15,22 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'ma
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 modal-backdrop"
         onClick={onClose}
       />
 
       {/* Modal Content */}
-      <div className={`relative bg-white rounded-xl ${maxWidth} w-full max-h-[90vh] overflow-y-auto shadow-2xl`}>
+      <div className={`relative bg-white ${maxWidth} w-full max-h-[92vh] sm:max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-xl shadow-dark animate-slide-up`}>
         {/* Header */}
         {title && (
-          <div className="sticky top-0 bg-white border-b border-border px-6 py-4 flex items-center justify-between rounded-t-xl z-10">
-            <h2 className="text-xl font-bold text-text">{title}</h2>
+          <div className="sticky top-0 bg-primary text-white px-5 py-3.5 flex items-center justify-between rounded-t-2xl sm:rounded-t-xl z-10">
+            <h2 className="text-base font-bold tracking-wide">{title}</h2>
             <button
               onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-textLight hover:text-text text-xl transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white text-lg transition-colors"
             >
               &times;
             </button>
@@ -38,7 +38,7 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'ma
         )}
 
         {/* Body */}
-        <div className="p-6">
+        <div className="p-5">
           {children}
         </div>
       </div>

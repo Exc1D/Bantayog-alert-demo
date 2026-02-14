@@ -13,9 +13,9 @@ const WEATHER_ICONS = {
 export default function WeatherCard({ municipality, weather, compact = false }) {
   if (!weather) {
     return (
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+      <div className="bg-white rounded-xl p-4 shadow-card border border-stone-100">
         <h3 className="font-bold text-sm">{municipality}</h3>
-        <p className="text-xs text-textLight mt-1">Weather data unavailable</p>
+        <p className="text-xs text-textMuted mt-1">Weather data unavailable</p>
       </div>
     );
   }
@@ -24,59 +24,59 @@ export default function WeatherCard({ municipality, weather, compact = false }) 
 
   if (compact) {
     return (
-      <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-xl p-3 shadow-card border border-stone-100 hover:shadow-card-hover transition-shadow">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold text-sm truncate">{municipality}</h3>
-          <span className="text-2xl">{weatherIcon}</span>
+          <h3 className="font-bold text-xs truncate">{municipality}</h3>
+          <span className="text-xl">{weatherIcon}</span>
         </div>
-        <div className="flex items-baseline gap-1 mt-1">
-          <span className="text-2xl font-bold">{weather.temperature}</span>
-          <span className="text-sm text-textLight">&deg;C</span>
+        <div className="flex items-baseline gap-0.5 mt-1">
+          <span className="text-xl font-bold">{weather.temperature}</span>
+          <span className="text-xs text-textLight">&deg;C</span>
         </div>
-        <p className="text-xs text-textLight capitalize">{weather.description || weather.condition}</p>
+        <p className="text-[10px] text-textMuted capitalize truncate">{weather.description || weather.condition}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-xl shadow-card border border-stone-100 overflow-hidden hover:shadow-card-hover transition-shadow">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4">
+      <div className="bg-primary text-white p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-bold text-lg">{municipality}</h3>
-            <p className="text-sm text-white/80 capitalize">{weather.description || weather.condition}</p>
+            <h3 className="font-bold text-base">{municipality}</h3>
+            <p className="text-xs text-white/50 capitalize">{weather.description || weather.condition}</p>
           </div>
-          <span className="text-4xl">{weatherIcon}</span>
+          <span className="text-3xl">{weatherIcon}</span>
         </div>
-        <div className="flex items-baseline gap-1 mt-2">
-          <span className="text-4xl font-bold">{weather.temperature}</span>
-          <span className="text-lg">&deg;C</span>
+        <div className="flex items-baseline gap-0.5 mt-2">
+          <span className="text-3xl font-bold">{weather.temperature}</span>
+          <span className="text-sm text-white/60">&deg;C</span>
         </div>
         {weather.feelsLike && (
-          <p className="text-xs text-white/70 mt-0.5">Feels like {weather.feelsLike}&deg;C</p>
+          <p className="text-[10px] text-white/40 mt-0.5">Feels like {weather.feelsLike}&deg;C</p>
         )}
       </div>
 
       {/* Details */}
-      <div className="p-4 grid grid-cols-2 gap-3">
-        <div className="text-center">
-          <p className="text-xs text-textLight">Wind</p>
-          <p className="font-semibold text-sm">
+      <div className="p-3 grid grid-cols-2 gap-2">
+        <div className="bg-stone-50 rounded-lg p-2 text-center">
+          <p className="text-[10px] text-textMuted uppercase tracking-wider font-semibold">Wind</p>
+          <p className="font-bold text-xs mt-0.5">
             {weather.windSpeed} kph {weather.windDirection}
           </p>
         </div>
-        <div className="text-center">
-          <p className="text-xs text-textLight">Humidity</p>
-          <p className="font-semibold text-sm">{weather.humidity}%</p>
+        <div className="bg-stone-50 rounded-lg p-2 text-center">
+          <p className="text-[10px] text-textMuted uppercase tracking-wider font-semibold">Humidity</p>
+          <p className="font-bold text-xs mt-0.5">{weather.humidity}%</p>
         </div>
-        <div className="text-center">
-          <p className="text-xs text-textLight">Pressure</p>
-          <p className="font-semibold text-sm">{weather.pressure} hPa</p>
+        <div className="bg-stone-50 rounded-lg p-2 text-center">
+          <p className="text-[10px] text-textMuted uppercase tracking-wider font-semibold">Pressure</p>
+          <p className="font-bold text-xs mt-0.5">{weather.pressure} hPa</p>
         </div>
-        <div className="text-center">
-          <p className="text-xs text-textLight">Visibility</p>
-          <p className="font-semibold text-sm">{weather.visibility ? `${(weather.visibility / 1000).toFixed(1)} km` : 'N/A'}</p>
+        <div className="bg-stone-50 rounded-lg p-2 text-center">
+          <p className="text-[10px] text-textMuted uppercase tracking-wider font-semibold">Visibility</p>
+          <p className="font-bold text-xs mt-0.5">{weather.visibility ? `${(weather.visibility / 1000).toFixed(1)} km` : 'N/A'}</p>
         </div>
       </div>
     </div>

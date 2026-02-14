@@ -7,14 +7,14 @@ export default function MapTab({ onViewReport }) {
 
   if (loading && reports.length === 0) {
     return (
-      <div className="h-[calc(100vh-116px)] flex items-center justify-center">
+      <div className="h-[calc(100vh-112px)] flex items-center justify-center bg-stone-100">
         <LoadingSpinner text="Loading map data..." />
       </div>
     );
   }
 
   return (
-    <div className="h-[calc(100vh-116px)]">
+    <div className="h-[calc(100vh-112px)]">
       <LeafletMap
         reports={reports}
         onReportClick={onViewReport}

@@ -62,23 +62,25 @@ export default function ResolutionModal({ isOpen, onClose, report }) {
     onClose();
   };
 
+  const inputClass = "w-full border border-stone-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent bg-white";
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={`Resolve Report #${report.id?.slice(0, 8)}`}
+      title="RESOLVE REPORT"
     >
-      <div className="space-y-5">
+      <div className="space-y-4">
         {/* Original Report Info */}
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h3 className="font-bold text-sm mb-2">Original Report:</h3>
-          <div className="text-sm space-y-1">
-            <p><strong>Type:</strong> {disasterType.icon} {disasterType.label}</p>
-            <p><strong>Location:</strong> {report.location?.municipality}</p>
-            <p><strong>Severity:</strong> {report.disaster?.severity}</p>
-            <p><strong>Reported:</strong> {formatDate(report.timestamp)}</p>
-            <p className="text-textLight mt-2">{report.disaster?.description}</p>
+        <div className="bg-stone-50 border border-stone-200 rounded-lg p-3">
+          <p className="text-[10px] font-bold text-textLight uppercase tracking-wider mb-2">Original Report</p>
+          <div className="text-xs space-y-1 text-textLight">
+            <p><span className="font-semibold text-text">Type:</span> {disasterType.icon} {disasterType.label}</p>
+            <p><span className="font-semibold text-text">Location:</span> {report.location?.municipality}</p>
+            <p><span className="font-semibold text-text">Severity:</span> <span className="capitalize">{report.disaster?.severity}</span></p>
+            <p><span className="font-semibold text-text">Reported:</span> {formatDate(report.timestamp)}</p>
           </div>
+          <p className="text-xs text-textLight mt-2">{report.disaster?.description}</p>
         </div>
 
         {/* Evidence Upload */}
@@ -89,44 +91,44 @@ export default function ResolutionModal({ isOpen, onClose, report }) {
 
         {/* Actions Taken */}
         <div>
-          <label className="block text-sm font-bold mb-1.5">
-            What Actions Were Taken? <span className="text-danger">*</span>
+          <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">
+            Actions Taken <span className="text-accent">*</span>
           </label>
           <textarea
             value={actionsTaken}
             onChange={(e) => setActionsTaken(e.target.value)}
-            placeholder="E.g., Drainage cleared by DPWH crew, water pumped out, road reopened to traffic"
-            className="w-full border-2 border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-accent focus:border-accent"
-            rows="4"
+            placeholder="E.g., Drainage cleared by DPWH crew, water pumped out, road reopened"
+            className={inputClass}
+            rows="3"
           />
         </div>
 
         {/* Resources Used */}
         <div>
-          <label className="block text-sm font-bold mb-1.5">Resources Used (Optional)</label>
+          <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">Resources Used</label>
           <textarea
             value={resourcesUsed}
             onChange={(e) => setResourcesUsed(e.target.value)}
-            placeholder="E.g., 2 water pumps, 5 DPWH workers, 1 backhoe"
-            className="w-full border-2 border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-accent focus:border-accent"
+            placeholder="E.g., 2 water pumps, 5 DPWH workers"
+            className={inputClass}
             rows="2"
           />
         </div>
 
         {/* Resolution Notes */}
         <div>
-          <label className="block text-sm font-bold mb-1.5">Additional Notes (Optional)</label>
+          <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">Additional Notes</label>
           <textarea
             value={resolutionNotes}
             onChange={(e) => setResolutionNotes(e.target.value)}
             placeholder="Any additional details..."
-            className="w-full border-2 border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-accent focus:border-accent"
+            className={inputClass}
             rows="2"
           />
         </div>
 
         {/* Submit Buttons */}
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-3 pt-1">
           <Button variant="secondary" onClick={handleClose} className="flex-1">
             Cancel
           </Button>
@@ -141,8 +143,8 @@ export default function ResolutionModal({ isOpen, onClose, report }) {
           </Button>
         </div>
 
-        <p className="text-xs text-textLight text-center">
-          * Cannot resolve without evidence photos.
+        <p className="text-[10px] text-textMuted text-center">
+          Evidence photos are required to resolve a report.
         </p>
       </div>
     </Modal>

@@ -10,15 +10,17 @@ export default function WeatherGrid({ weatherData, loading }) {
     return <LoadingSpinner text="Loading weather data..." />;
   }
 
-  // Show detailed view
   if (selectedMunicipality) {
     return (
       <div>
         <button
           onClick={() => setSelectedMunicipality(null)}
-          className="text-sm text-accent font-medium mb-4 hover:underline"
+          className="text-xs text-accent font-semibold mb-3 hover:underline flex items-center gap-1"
         >
-          {'\u2190'} Back to all municipalities
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Back to all municipalities
         </button>
         <WeatherCard
           municipality={selectedMunicipality}
@@ -30,10 +32,7 @@ export default function WeatherGrid({ weatherData, loading }) {
 
   return (
     <div>
-      <h3 className="text-lg font-bold mb-4">
-        Weather Across Camarines Norte
-      </h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
         {MUNICIPALITIES.map(municipality => (
           <button
             key={municipality}

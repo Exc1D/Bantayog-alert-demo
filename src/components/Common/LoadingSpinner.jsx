@@ -12,7 +12,7 @@ export default function LoadingSpinner({ size = 'md', text = '' }) {
         viewBox="0 0 24 24"
       >
         <circle
-          className="opacity-25"
+          className="opacity-20"
           cx="12"
           cy="12"
           r="10"
@@ -21,12 +21,12 @@ export default function LoadingSpinner({ size = 'md', text = '' }) {
           fill="none"
         />
         <path
-          className="opacity-75"
+          className="opacity-80"
           fill="currentColor"
           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
         />
       </svg>
-      {text && <p className="text-sm text-textLight">{text}</p>}
+      {text && <p className="text-sm text-textLight font-medium">{text}</p>}
     </div>
   );
 }

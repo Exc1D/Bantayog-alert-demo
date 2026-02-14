@@ -37,34 +37,42 @@ export default function EvidenceUpload({ photos, onPhotosChange, maxPhotos = 5 }
 
   return (
     <div>
-      <label className="block text-sm font-bold mb-1.5">
-        Resolution Evidence Photos (Required) <span className="text-danger">*</span>
+      <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">
+        Evidence Photos <span className="text-accent">*</span>
       </label>
-      <p className="text-xs text-textLight mb-2">
+      <p className="text-[10px] text-textMuted mb-2">
         Upload 1-{maxPhotos} photos showing the issue has been resolved
       </p>
 
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={handleAdd}
-        className="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
-      />
+      <label className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-stone-300 rounded-lg p-3 cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/50 transition-colors">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#78716c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <polyline points="21 15 16 10 5 21" />
+        </svg>
+        <span className="text-xs text-textLight font-medium">Upload evidence photos</span>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleAdd}
+          className="hidden"
+        />
+      </label>
 
       {previewUrls.length > 0 && (
-        <div className="grid grid-cols-3 gap-2 mt-3">
+        <div className="grid grid-cols-3 gap-2 mt-2">
           {previewUrls.map((url, i) => (
             <div key={i} className="relative">
               <img
                 src={url}
                 alt={`Evidence ${i + 1}`}
-                className="w-full h-20 object-cover rounded-lg"
+                className="w-full h-16 object-cover rounded-lg border border-stone-200"
               />
               <button
                 type="button"
                 onClick={() => handleRemove(i)}
-                className="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center"
+                className="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity"
               >
                 &times;
               </button>

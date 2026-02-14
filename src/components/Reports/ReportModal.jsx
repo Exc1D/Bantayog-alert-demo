@@ -87,12 +87,20 @@ export default function ReportModal({ isOpen, onClose }) {
         reportType,
       };
 
-      await submitReport(reportData, evidenceFiles, user);
+      const { skippedFiles } = await submitReport(reportData, evidenceFiles, user);
 
-      addToast('Report submitted successfully.', 'success');
+      if (skippedFiles > 0) {
+        addToast(
+          `Report submitted, but ${skippedFiles} file${skippedFiles > 1 ? 's' : ''} could not be uploaded.`,
+          'warning'
+        );
+      } else {
+        addToast('Report submitted successfully.', 'success');
+      }
       handleClose();
     } catch (error) {
-      addToast('Failed to submit report. Please try again.', 'error');
+      const msg = error?.message || error?.code || 'Unknown error';
+      addToast(`Failed to submit report: ${msg}`, 'error');
       console.error('Submit error:', error);
     } finally {
       setIsSubmitting(false);

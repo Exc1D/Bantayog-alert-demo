@@ -1,8 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
-import MarkerClusterGroup from 'react-leaflet-markercluster';
+import MarkerClusterGroup from './MarkerClusterGroup';
 import 'leaflet/dist/leaflet.css';
-import 'react-leaflet-markercluster/dist/styles.min.css';
 import L from 'leaflet';
 import DisasterMarker from './DisasterMarker';
 import MapControls from './MapControls';

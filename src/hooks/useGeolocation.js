@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export function useGeolocation() {
   const [location, setLocation] = useState(null);
@@ -28,15 +28,15 @@ export function useGeolocation() {
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
+        timeout: 15000,
+        maximumAge: 30000
       }
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     setLoading(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -54,11 +54,11 @@ export function useGeolocation() {
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 15000,
         maximumAge: 0
       }
     );
-  };
+  }, []);
 
   return { location, error, loading, refresh };
 }

@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import Header from './components/Layout/Header';
 import TabNavigation from './components/Layout/TabNavigation';
 import Footer from './components/Layout/Footer';
-import MapTab from './pages/MapTab';
-import FeedTab from './pages/FeedTab';
-import WeatherTab from './pages/WeatherTab';
-import ProfileTab from './pages/ProfileTab';
-import ReportModal from './components/Reports/ReportModal';
+import LoadingSpinner from './components/Common/LoadingSpinner';
 import { AuthProvider } from './contexts/AuthContext';
 import { ReportsProvider } from './contexts/ReportsContext';
 import { ToastProvider } from './components/Common/Toast';
+
+const MapTab = lazy(() => import('./pages/MapTab'));
+const FeedTab = lazy(() => import('./pages/FeedTab'));
+const WeatherTab = lazy(() => import('./pages/WeatherTab'));
+const ProfileTab = lazy(() => import('./pages/ProfileTab'));
+const ReportModal = lazy(() => import('./components/Reports/ReportModal'));
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState('map');
@@ -40,7 +42,9 @@ function AppContent() {
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
       <main className="flex-1">
-        {renderTab()}
+        <Suspense fallback={<div className="h-[calc(100vh-112px)] flex items-center justify-center"><LoadingSpinner /></div>}>
+          {renderTab()}
+        </Suspense>
       </main>
 
       {activeTab !== 'profile' && (
@@ -62,10 +66,14 @@ function AppContent() {
       </button>
 
       {/* Report Modal */}
-      <ReportModal
-        isOpen={showReportModal}
-        onClose={() => setShowReportModal(false)}
-      />
+      {showReportModal && (
+        <Suspense fallback={null}>
+          <ReportModal
+            isOpen={showReportModal}
+            onClose={() => setShowReportModal(false)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

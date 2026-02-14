@@ -1,17 +1,24 @@
+import { memo, useMemo } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { getDisasterType } from '../../data/disasterTypes';
 import { MARKER_COLORS, DISASTER_ICONS } from '../../utils/constants';
 import { formatTimeAgo } from '../../utils/timeUtils';
 
-function createMarkerIcon(type, severity, status) {
+// Cache marker icons to avoid recreating DOM elements
+const iconCache = new Map();
+
+function getMarkerIcon(type, severity, status) {
+  const cacheKey = `${type}-${severity}-${status}`;
+  if (iconCache.has(cacheKey)) return iconCache.get(cacheKey);
+
   const color = MARKER_COLORS[type] || MARKER_COLORS.other;
   const icon = DISASTER_ICONS[type] || DISASTER_ICONS.other;
   const opacity = status === 'verified' || status === 'resolved' ? 1 : 0.7;
   const borderColor = status === 'resolved' ? '#16a34a' : severity === 'critical' ? '#dc2626' : '#ffffff';
   const size = severity === 'critical' ? 44 : 38;
 
-  return L.divIcon({
+  const divIcon = L.divIcon({
     html: `
       <div style="
         background: ${color};
@@ -35,14 +42,16 @@ function createMarkerIcon(type, severity, status) {
     iconAnchor: [size / 2, size / 2],
     popupAnchor: [0, -(size / 2)]
   });
+
+  iconCache.set(cacheKey, divIcon);
+  return divIcon;
 }
 
-export default function DisasterMarker({ report, onClick }) {
+export default memo(function DisasterMarker({ report, onClick }) {
   const disasterType = getDisasterType(report.disaster?.type);
-  const icon = createMarkerIcon(
-    report.disaster?.type,
-    report.disaster?.severity,
-    report.verification?.status
+  const icon = useMemo(
+    () => getMarkerIcon(report.disaster?.type, report.disaster?.severity, report.verification?.status),
+    [report.disaster?.type, report.disaster?.severity, report.verification?.status]
   );
 
   const sevStyles = {
@@ -110,4 +119,4 @@ export default function DisasterMarker({ report, onClick }) {
       </Popup>
     </Marker>
   );
-}
+});

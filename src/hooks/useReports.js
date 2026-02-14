@@ -94,43 +94,51 @@ export function useReports(filters = {}) {
 
 export async function submitReport(reportData, photos, user) {
   try {
-    // Upload photos
-    const photoUrls = [];
-    const thumbnailUrls = [];
-
-    for (const photo of photos) {
-      const compressed = await compressImage(photo);
-      const thumbnail = await createThumbnail(photo);
-
-      const photoRef = ref(storage, `reports/${Date.now()}_${photo.name}`);
-      const thumbRef = ref(storage, `reports/thumbs/${Date.now()}_${photo.name}`);
-
-      await uploadBytes(photoRef, compressed);
-      await uploadBytes(thumbRef, thumbnail);
-
-      const photoUrl = await getDownloadURL(photoRef);
-      const thumbUrl = await getDownloadURL(thumbRef);
-
-      photoUrls.push(photoUrl);
-      thumbnailUrls.push(thumbUrl);
-    }
-
-    // Get weather context
-    let weatherContext = {};
-    try {
-      weatherContext = await fetchCurrentWeather(
-        reportData.location.lat,
-        reportData.location.lng
-      );
-    } catch (e) {
-      console.warn('Could not fetch weather context:', e);
-    }
-
-    // Detect municipality
+    // Detect municipality (sync, run first)
     const municipality = detectMunicipality(
       reportData.location.lat,
       reportData.location.lng
     ) || reportData.location.municipality || 'Unknown';
+
+    // Upload photos and fetch weather in parallel
+    const [uploadResults, weatherContext] = await Promise.all([
+      // Parallel photo uploads
+      Promise.all(
+        photos.map(async (photo, index) => {
+          const [compressed, thumbnail] = await Promise.all([
+            compressImage(photo),
+            createThumbnail(photo)
+          ]);
+
+          const ts = Date.now() + index;
+          const photoRef = ref(storage, `reports/${ts}_${photo.name}`);
+          const thumbRef = ref(storage, `reports/thumbs/${ts}_${photo.name}`);
+
+          await Promise.all([
+            uploadBytes(photoRef, compressed),
+            uploadBytes(thumbRef, thumbnail)
+          ]);
+
+          const [photoUrl, thumbUrl] = await Promise.all([
+            getDownloadURL(photoRef),
+            getDownloadURL(thumbRef)
+          ]);
+
+          return { photoUrl, thumbUrl };
+        })
+      ),
+      // Weather fetch alongside uploads
+      fetchCurrentWeather(
+        reportData.location.lat,
+        reportData.location.lng
+      ).catch((e) => {
+        console.warn('Could not fetch weather context:', e);
+        return {};
+      })
+    ]);
+
+    const photoUrls = uploadResults.map(r => r.photoUrl);
+    const thumbnailUrls = uploadResults.map(r => r.thumbUrl);
 
     // Build report document
     const report = {
@@ -233,15 +241,15 @@ export async function rejectReport(reportId, adminId, adminRole, notes = '') {
 }
 
 export async function resolveReport(reportId, adminId, evidencePhotos, actionsTaken, resolutionNotes = '', resourcesUsed = '') {
-  // Upload evidence photos
-  const evidenceUrls = [];
-  for (const photo of evidencePhotos) {
-    const compressed = await compressImage(photo);
-    const photoRef = ref(storage, `evidence/${Date.now()}_${photo.name}`);
-    await uploadBytes(photoRef, compressed);
-    const url = await getDownloadURL(photoRef);
-    evidenceUrls.push(url);
-  }
+  // Upload evidence photos in parallel
+  const evidenceUrls = await Promise.all(
+    evidencePhotos.map(async (photo, index) => {
+      const compressed = await compressImage(photo);
+      const photoRef = ref(storage, `evidence/${Date.now() + index}_${photo.name}`);
+      await uploadBytes(photoRef, compressed);
+      return getDownloadURL(photoRef);
+    })
+  );
 
   const reportRef = doc(db, 'reports', reportId);
   await updateDoc(reportRef, {

@@ -72,9 +72,22 @@ export function useAllMunicipalitiesWeather() {
 
       const entries = Object.entries(MUNICIPALITY_COORDS);
       const promises = entries.map(async ([name, coords]) => {
+        // Use cache if available
+        const cached = weatherCache.get(name);
+        if (cached && Date.now() - cached.timestamp < WEATHER_CACHE_DURATION) {
+          results[name] = cached.weather;
+          return;
+        }
+
         try {
           const weather = await fetchCurrentWeather(coords.lat, coords.lng);
           results[name] = weather;
+          // Store in shared cache
+          weatherCache.set(name, {
+            weather,
+            forecast: [],
+            timestamp: Date.now()
+          });
         } catch {
           results[name] = null;
         }

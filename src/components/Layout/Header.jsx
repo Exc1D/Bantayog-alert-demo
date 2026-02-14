@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useReportsContext } from '../../contexts/ReportsContext';
 
@@ -5,9 +6,12 @@ export default function Header() {
   const { user, userProfile, isAdmin, isSuperAdmin } = useAuthContext();
   const { reports } = useReportsContext();
 
-  const activeCount = reports.filter(
-    r => r.verification?.status === 'pending' || r.verification?.status === 'verified'
-  ).length;
+  const activeCount = useMemo(
+    () => reports.filter(
+      r => r.verification?.status === 'pending' || r.verification?.status === 'verified'
+    ).length,
+    [reports]
+  );
 
   const getRoleBadge = () => {
     if (isSuperAdmin) return 'PDRRMO';

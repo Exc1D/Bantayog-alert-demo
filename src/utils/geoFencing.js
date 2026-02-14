@@ -1,14 +1,17 @@
-import * as turf from '@turf/turf';
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { point } from '@turf/helpers';
+import centroid from '@turf/centroid';
+import distance from '@turf/distance';
 import boundariesData from '../data/camarines-norte-boundaries.json';
 
 export function detectMunicipality(lat, lng) {
   if (!lat || !lng) return null;
 
   // Turf uses [longitude, latitude] order
-  const point = turf.point([lng, lat]);
+  const pt = point([lng, lat]);
 
   for (const feature of boundariesData.features) {
-    if (turf.booleanPointInPolygon(point, feature)) {
+    if (booleanPointInPolygon(pt, feature)) {
       return feature.properties.name;
     }
   }
@@ -24,16 +27,16 @@ export function isInCamarinesNorte(lat, lng) {
 export function getNearestMunicipality(lat, lng) {
   if (!lat || !lng) return null;
 
-  const point = turf.point([lng, lat]);
+  const pt = point([lng, lat]);
   let nearest = null;
   let minDistance = Infinity;
 
   for (const feature of boundariesData.features) {
-    const center = turf.centroid(feature);
-    const distance = turf.distance(point, center, { units: 'kilometers' });
+    const center = centroid(feature);
+    const dist = distance(pt, center, { units: 'kilometers' });
 
-    if (distance < minDistance) {
-      minDistance = distance;
+    if (dist < minDistance) {
+      minDistance = dist;
       nearest = feature.properties.name;
     }
   }

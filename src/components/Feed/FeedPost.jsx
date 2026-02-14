@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { getDisasterType } from '../../data/disasterTypes';
 import { formatTimeAgo } from '../../utils/timeUtils';
 import { SEVERITY_COLORS, STATUS_COLORS } from '../../utils/constants';
@@ -37,7 +37,7 @@ const SEVERITY_BORDER = {
   minor: 'severity-border-minor'
 };
 
-export default function FeedPost({ report, onViewMap }) {
+export default memo(function FeedPost({ report, onViewMap }) {
   const [showComments, setShowComments] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
 
@@ -211,4 +211,4 @@ export default function FeedPost({ report, onViewMap }) {
       )}
     </div>
   );
-}
+});

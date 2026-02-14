@@ -10,13 +10,14 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    target: 'es2020',
+    cssMinify: true,
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
           firebase: ['firebase/app', 'firebase/firestore', 'firebase/auth', 'firebase/storage'],
-          map: ['leaflet', 'react-leaflet'],
-          turf: ['@turf/turf']
+          map: ['leaflet', 'react-leaflet']
         }
       }
     }

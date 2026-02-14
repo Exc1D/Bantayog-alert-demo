@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useMemo, useCallback } from 'react';
 import { useReports } from '../hooks/useReports';
 
 const ReportsContext = createContext(null);
@@ -13,20 +13,22 @@ export function ReportsProvider({ children }) {
 
   const { reports, loading, error, loadMore, hasMore } = useReports(filters);
 
-  const updateFilters = (newFilters) => {
+  const updateFilters = useCallback((newFilters) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
-  };
+  }, []);
+
+  const value = useMemo(() => ({
+    reports,
+    loading,
+    error,
+    loadMore,
+    hasMore,
+    filters,
+    updateFilters
+  }), [reports, loading, error, loadMore, hasMore, filters, updateFilters]);
 
   return (
-    <ReportsContext.Provider value={{
-      reports,
-      loading,
-      error,
-      loadMore,
-      hasMore,
-      filters,
-      updateFilters
-    }}>
+    <ReportsContext.Provider value={value}>
       {children}
     </ReportsContext.Provider>
   );

@@ -90,7 +90,7 @@ export const DISASTER_TYPES = [
   {
     id: 'pending',
     label: 'Unclassified',
-    icon: '\u{1F4CB}',
+    icon: '\u26A0\uFE0F',
     color: '#9ca3af',
     description: 'Awaiting classification by admin',
     tags: []

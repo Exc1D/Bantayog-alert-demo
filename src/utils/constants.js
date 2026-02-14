@@ -78,7 +78,7 @@ export const DISASTER_ICONS = {
   environmental: '\u{1F33F}',
   security: '\u{1F6A8}',
   other: '\u26A0\uFE0F',
-  pending: '\u{1F4CB}'
+  pending: '\u26A0\uFE0F'
 };
 
 export const MAX_PHOTOS = 5;

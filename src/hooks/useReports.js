@@ -93,126 +93,132 @@ export function useReports(filters = {}) {
 }
 
 export async function submitReport(reportData, evidenceFiles, user) {
-  try {
-    // Detect municipality (sync, run first)
-    const municipality = detectMunicipality(
-      reportData.location.lat,
-      reportData.location.lng
-    ) || reportData.location.municipality || 'Unknown';
+  // Detect municipality (sync, run first)
+  const municipality = detectMunicipality(
+    reportData.location.lat,
+    reportData.location.lng
+  ) || reportData.location.municipality || 'Unknown';
 
-    // Separate images and videos
-    const imageFiles = evidenceFiles.filter(f => f.type.startsWith('image/'));
-    const videoFiles = evidenceFiles.filter(f => f.type.startsWith('video/'));
+  // Separate images and videos
+  const imageFiles = evidenceFiles.filter(f => f.type.startsWith('image/'));
+  const videoFiles = evidenceFiles.filter(f => f.type.startsWith('video/'));
 
-    // Upload media and fetch weather in parallel
-    const [imageResults, videoUrls, weatherContext] = await Promise.all([
-      // Parallel image uploads (compress + thumbnail)
-      Promise.all(
-        imageFiles.map(async (photo, index) => {
-          const [compressed, thumbnail] = await Promise.all([
-            compressImage(photo),
-            createThumbnail(photo)
-          ]);
+  // Upload each file individually, skipping failures
+  const imageResults = await Promise.all(
+    imageFiles.map(async (photo, index) => {
+      try {
+        const [compressed, thumbnail] = await Promise.all([
+          compressImage(photo),
+          createThumbnail(photo)
+        ]);
 
-          const ts = Date.now() + index;
-          const photoRef = ref(storage, `reports/${ts}_${photo.name}`);
-          const thumbRef = ref(storage, `reports/thumbs/${ts}_${photo.name}`);
+        const ts = Date.now() + index;
+        const photoRef = ref(storage, `reports/${ts}_${photo.name}`);
+        const thumbRef = ref(storage, `reports/thumbs/${ts}_${photo.name}`);
 
-          await Promise.all([
-            uploadBytes(photoRef, compressed),
-            uploadBytes(thumbRef, thumbnail)
-          ]);
+        await Promise.all([
+          uploadBytes(photoRef, compressed),
+          uploadBytes(thumbRef, thumbnail)
+        ]);
 
-          const [photoUrl, thumbUrl] = await Promise.all([
-            getDownloadURL(photoRef),
-            getDownloadURL(thumbRef)
-          ]);
+        const [photoUrl, thumbUrl] = await Promise.all([
+          getDownloadURL(photoRef),
+          getDownloadURL(thumbRef)
+        ]);
 
-          return { photoUrl, thumbUrl };
-        })
-      ),
-      // Parallel video uploads (no compression)
-      Promise.all(
-        videoFiles.map(async (video, index) => {
-          const ts = Date.now() + index;
-          const videoRef = ref(storage, `reports/videos/${ts}_${video.name}`);
-          await uploadBytes(videoRef, video);
-          return getDownloadURL(videoRef);
-        })
-      ),
-      // Weather fetch alongside uploads
-      fetchCurrentWeather(
-        reportData.location.lat,
-        reportData.location.lng
-      ).catch((e) => {
-        console.warn('Could not fetch weather context:', e);
-        return {};
-      })
-    ]);
+        return { photoUrl, thumbUrl };
+      } catch (err) {
+        console.warn('Image upload failed, skipping:', err);
+        return null;
+      }
+    })
+  );
 
-    const photoUrls = imageResults.map(r => r.photoUrl);
-    const thumbnailUrls = imageResults.map(r => r.thumbUrl);
+  const videoUrls = await Promise.all(
+    videoFiles.map(async (video, index) => {
+      try {
+        const ts = Date.now() + index;
+        const videoRef = ref(storage, `reports/videos/${ts}_${video.name}`);
+        await uploadBytes(videoRef, video);
+        return getDownloadURL(videoRef);
+      } catch (err) {
+        console.warn('Video upload failed, skipping:', err);
+        return null;
+      }
+    })
+  );
 
-    // Build report document
-    const report = {
-      timestamp: serverTimestamp(),
-      reportType: reportData.reportType || 'situation',
-      location: {
-        lat: reportData.location.lat,
-        lng: reportData.location.lng,
-        municipality: municipality,
-        barangay: reportData.location.barangay || '',
-        street: reportData.location.street || '',
-        accuracy: reportData.location.accuracy || 0
-      },
-      disaster: {
-        type: reportData.disaster.type,
-        severity: reportData.disaster.severity,
-        description: reportData.disaster.description,
-        tags: reportData.disaster.tags || []
-      },
-      media: {
-        photos: photoUrls,
-        videos: videoUrls,
-        thumbnails: thumbnailUrls
-      },
-      reporter: {
-        userId: user?.uid || 'anonymous',
-        name: user?.displayName || 'Anonymous',
-        isAnonymous: !user,
-        isVerifiedUser: false
-      },
-      verification: {
-        status: 'pending',
-        verifiedBy: null,
-        verifiedAt: null,
-        verifierRole: null,
-        notes: '',
-        resolution: {
-          resolvedBy: null,
-          resolvedAt: null,
-          evidencePhotos: [],
-          resolutionNotes: '',
-          actionsTaken: '',
-          resourcesUsed: ''
-        }
-      },
-      engagement: {
-        views: 0,
-        upvotes: 0,
-        upvotedBy: [],
-        commentCount: 0,
-        shares: 0
-      },
-      weatherContext
-    };
+  // Fetch weather (non-blocking)
+  const weatherContext = await fetchCurrentWeather(
+    reportData.location.lat,
+    reportData.location.lng
+  ).catch((e) => {
+    console.warn('Could not fetch weather context:', e);
+    return {};
+  });
 
-    const docRef = await addDoc(collection(db, 'reports'), report);
-    return docRef.id;
-  } catch (error) {
-    console.error('Error submitting report:', error);
-    throw error;
-  }
+  // Filter out failed uploads
+  const successfulImages = imageResults.filter(Boolean);
+  const photoUrls = successfulImages.map(r => r.photoUrl);
+  const thumbnailUrls = successfulImages.map(r => r.thumbUrl);
+  const successfulVideos = videoUrls.filter(Boolean);
+
+  // Build report document
+  const report = {
+    timestamp: serverTimestamp(),
+    reportType: reportData.reportType || 'situation',
+    location: {
+      lat: reportData.location.lat,
+      lng: reportData.location.lng,
+      municipality: municipality,
+      barangay: reportData.location.barangay || '',
+      street: reportData.location.street || '',
+      accuracy: reportData.location.accuracy || 0
+    },
+    disaster: {
+      type: reportData.disaster.type,
+      severity: reportData.disaster.severity,
+      description: reportData.disaster.description,
+      tags: reportData.disaster.tags || []
+    },
+    media: {
+      photos: photoUrls,
+      videos: successfulVideos,
+      thumbnails: thumbnailUrls
+    },
+    reporter: {
+      userId: user?.uid || 'anonymous',
+      name: user?.displayName || 'Anonymous',
+      isAnonymous: !user,
+      isVerifiedUser: false
+    },
+    verification: {
+      status: 'pending',
+      verifiedBy: null,
+      verifiedAt: null,
+      verifierRole: null,
+      notes: '',
+      resolution: {
+        resolvedBy: null,
+        resolvedAt: null,
+        evidencePhotos: [],
+        resolutionNotes: '',
+        actionsTaken: '',
+        resourcesUsed: ''
+      }
+    },
+    engagement: {
+      views: 0,
+      upvotes: 0,
+      upvotedBy: [],
+      commentCount: 0,
+      shares: 0
+    },
+    weatherContext
+  };
+
+  const docRef = await addDoc(collection(db, 'reports'), report);
+  return docRef.id;
 }
 
 export async function upvoteReport(reportId, userId) {

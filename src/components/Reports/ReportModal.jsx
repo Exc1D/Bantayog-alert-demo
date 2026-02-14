@@ -92,7 +92,8 @@ export default function ReportModal({ isOpen, onClose }) {
       addToast('Report submitted successfully.', 'success');
       handleClose();
     } catch (error) {
-      addToast('Failed to submit report. Please try again.', 'error');
+      const msg = error?.message || error?.code || 'Unknown error';
+      addToast(`Failed to submit report: ${msg}`, 'error');
       console.error('Submit error:', error);
     } finally {
       setIsSubmitting(false);

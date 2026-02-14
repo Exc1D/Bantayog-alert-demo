@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { getDisasterType } from '../../data/disasterTypes';
@@ -47,6 +47,19 @@ function getMarkerIcon(type, severity, status) {
   return divIcon;
 }
 
+const sevStyles = {
+  critical: 'bg-red-600 text-white',
+  moderate: 'bg-amber-500 text-white',
+  minor: 'bg-emerald-600 text-white'
+};
+
+const statusStyles = {
+  pending: 'bg-stone-200 text-stone-700',
+  verified: 'bg-blue-100 text-blue-700',
+  rejected: 'bg-red-100 text-red-700',
+  resolved: 'bg-emerald-100 text-emerald-700'
+};
+
 export default memo(function DisasterMarker({ report, onClick }) {
   const disasterType = getDisasterType(report.disaster?.type);
   const icon = useMemo(
@@ -54,26 +67,18 @@ export default memo(function DisasterMarker({ report, onClick }) {
     [report.disaster?.type, report.disaster?.severity, report.verification?.status]
   );
 
-  const sevStyles = {
-    critical: 'bg-red-600 text-white',
-    moderate: 'bg-amber-500 text-white',
-    minor: 'bg-emerald-600 text-white'
-  };
+  const eventHandlers = useMemo(() => ({
+    click: () => onClick && onClick(report)
+  }), [onClick, report]);
 
-  const statusStyles = {
-    pending: 'bg-stone-200 text-stone-700',
-    verified: 'bg-blue-100 text-blue-700',
-    rejected: 'bg-red-100 text-red-700',
-    resolved: 'bg-emerald-100 text-emerald-700'
-  };
+  // Prefer thumbnail over full photo for popup preview
+  const popupImage = report.media?.thumbnails?.[0] || report.media?.photos?.[0];
 
   return (
     <Marker
       position={[report.location.lat, report.location.lng]}
       icon={icon}
-      eventHandlers={{
-        click: () => onClick && onClick(report)
-      }}
+      eventHandlers={eventHandlers}
     >
       <Popup>
         <div className="font-sans min-w-[200px] max-w-[260px]">
@@ -108,11 +113,12 @@ export default memo(function DisasterMarker({ report, onClick }) {
             {formatTimeAgo(report.timestamp)}
           </p>
 
-          {report.media?.photos?.[0] && (
+          {popupImage && (
             <img
-              src={report.media.photos[0]}
+              src={popupImage}
               alt="Report"
               className="w-full h-20 object-cover rounded-lg mt-2 border border-stone-200"
+              loading="lazy"
             />
           )}
         </div>

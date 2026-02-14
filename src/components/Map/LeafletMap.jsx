@@ -1,6 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-markercluster';
 import 'leaflet/dist/leaflet.css';
+import 'react-leaflet-markercluster/dist/styles.min.css';
 import L from 'leaflet';
 import DisasterMarker from './DisasterMarker';
 import MapControls from './MapControls';
@@ -53,6 +55,10 @@ export default function LeafletMap({ reports = [], onReportClick }) {
     });
   }, [reports, filters]);
 
+  const handleMarkerClick = useCallback((report) => {
+    if (onReportClick) onReportClick(report);
+  }, [onReportClick]);
+
   return (
     <div className="relative w-full h-full">
       <MapControls
@@ -72,15 +78,26 @@ export default function LeafletMap({ reports = [], onReportClick }) {
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          keepBuffer={4}
+          updateWhenZooming={false}
+          updateWhenIdle={true}
         />
 
-        {filteredReports.map((report) => (
-          <DisasterMarker
-            key={report.id}
-            report={report}
-            onClick={onReportClick}
-          />
-        ))}
+        <MarkerClusterGroup
+          chunkedLoading
+          maxClusterRadius={50}
+          spiderfyOnMaxZoom
+          showCoverageOnHover={false}
+          disableClusteringAtZoom={16}
+        >
+          {filteredReports.map((report) => (
+            <DisasterMarker
+              key={report.id}
+              report={report}
+              onClick={handleMarkerClick}
+            />
+          ))}
+        </MarkerClusterGroup>
 
         <LocationButton />
       </MapContainer>

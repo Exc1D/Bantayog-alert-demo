@@ -120,61 +120,6 @@ export default function ReportForm({ disasterType, formData, onChange, photos, o
         />
       </div>
 
-      {/* Type-specific fields */}
-      {disasterType.fields.map(field => (
-        <div key={field.name}>
-          <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-2">{field.label}</label>
-          {field.type === 'number' && (
-            <input
-              type="number"
-              value={formData[field.name] || ''}
-              onChange={(e) => handleFieldChange(field.name, Number(e.target.value))}
-              min={field.min}
-              max={field.max}
-              className="w-full border border-stone-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent bg-white"
-            />
-          )}
-          {field.type === 'boolean' && (
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => handleFieldChange(field.name, true)}
-                className={`flex-1 p-2.5 rounded-lg border text-sm font-semibold transition-all ${
-                  formData[field.name] === true
-                    ? 'border-accent bg-accent/5 text-accent'
-                    : 'border-stone-200 hover:border-stone-300 text-textLight'
-                }`}
-              >
-                Yes
-              </button>
-              <button
-                type="button"
-                onClick={() => handleFieldChange(field.name, false)}
-                className={`flex-1 p-2.5 rounded-lg border text-sm font-semibold transition-all ${
-                  formData[field.name] === false
-                    ? 'border-accent bg-accent/5 text-accent'
-                    : 'border-stone-200 hover:border-stone-300 text-textLight'
-                }`}
-              >
-                No
-              </button>
-            </div>
-          )}
-          {field.type === 'select' && (
-            <select
-              value={formData[field.name] || ''}
-              onChange={(e) => handleFieldChange(field.name, e.target.value)}
-              className="w-full border border-stone-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent bg-white"
-            >
-              <option value="">Select...</option>
-              {field.options.map(opt => (
-                <option key={opt} value={opt} className="capitalize">{opt}</option>
-              ))}
-            </select>
-          )}
-        </div>
-      ))}
-
       {/* Location Details */}
       <div className="grid grid-cols-2 gap-3">
         <div>

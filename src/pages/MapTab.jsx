@@ -5,7 +5,7 @@ export default function MapTab({ onViewReport }) {
   const { reports } = useReportsContext();
 
   return (
-    <div className="h-[calc(100vh-112px)]">
+    <div className="h-[calc(100vh-112px)] isolate">
       <LeafletMap
         reports={reports}
         onReportClick={onViewReport}

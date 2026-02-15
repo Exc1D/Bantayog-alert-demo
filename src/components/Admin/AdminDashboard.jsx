@@ -21,7 +21,7 @@ const SEV_STYLES = {
 // Sort client-side by timestamp descending (avoids composite index requirement)
 function getTimestampValue(doc) {
   const ts = doc?.timestamp;
-  if (!ts) return 0;
+  if (ts == null) return 0;
   if (typeof ts?.toMillis === 'function') return ts.toMillis();
   if (ts instanceof Date) return ts.getTime();
   if (typeof ts?.seconds === 'number') return ts.seconds * 1000;

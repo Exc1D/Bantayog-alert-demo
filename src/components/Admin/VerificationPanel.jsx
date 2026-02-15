@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { getDisasterType } from '../../data/disasterTypes';
+import { DISASTER_TYPES, getDisasterType } from '../../data/disasterTypes';
 import { formatTimeAgo } from '../../utils/timeUtils';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { verifyReport, rejectReport } from '../../hooks/useReports';
+import { verifyReport, rejectReport, deleteReport } from '../../hooks/useReports';
 import { useToast } from '../Common/Toast';
 import Button from '../Common/Button';
 
@@ -12,9 +12,16 @@ const SEV_STYLES = {
   minor: 'bg-emerald-600 text-white'
 };
 
+// Disaster types available for classification (exclude 'pending')
+const CLASSIFIABLE_TYPES = DISASTER_TYPES.filter(t => t.id !== 'pending');
+
 export default function VerificationPanel({ report, onDone }) {
   const [notes, setNotes] = useState('');
+  const [selectedType, setSelectedType] = useState(
+    report.disaster?.type !== 'pending' ? report.disaster?.type : ''
+  );
   const [processing, setProcessing] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { user, userProfile } = useAuthContext();
   const { addToast } = useToast();
 
@@ -22,10 +29,14 @@ export default function VerificationPanel({ report, onDone }) {
   const sevStyle = SEV_STYLES[report.disaster?.severity] || SEV_STYLES.minor;
 
   const handleVerify = async () => {
+    if (!selectedType) {
+      addToast('Please classify the hazard/disaster type before verifying', 'warning');
+      return;
+    }
     setProcessing(true);
     try {
-      await verifyReport(report.id, user.uid, userProfile?.role, notes);
-      addToast('Report verified successfully', 'success');
+      await verifyReport(report.id, user.uid, userProfile?.role, notes, selectedType);
+      addToast('Report verified and classified successfully', 'success');
       onDone();
     } catch (error) {
       addToast('Failed to verify report', 'error');
@@ -48,6 +59,20 @@ export default function VerificationPanel({ report, onDone }) {
       addToast('Failed to reject report', 'error');
     } finally {
       setProcessing(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setProcessing(true);
+    try {
+      await deleteReport(report.id);
+      addToast('Report deleted permanently', 'success');
+      onDone();
+    } catch (error) {
+      addToast('Failed to delete report', 'error');
+    } finally {
+      setProcessing(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -87,6 +112,31 @@ export default function VerificationPanel({ report, onDone }) {
         </div>
       )}
 
+      {/* Hazard/Disaster Type Classification */}
+      <div>
+        <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">
+          Classify Hazard Type <span className="text-accent">*</span>
+        </label>
+        <select
+          value={selectedType}
+          onChange={(e) => setSelectedType(e.target.value)}
+          className="w-full border border-stone-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent bg-white"
+        >
+          <option value="">-- Select hazard type --</option>
+          {CLASSIFIABLE_TYPES.map(type => (
+            <option key={type.id} value={type.id}>
+              {type.icon} {type.label} — {type.description}
+            </option>
+          ))}
+        </select>
+        {selectedType && (
+          <div className="mt-1.5 flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1.5">
+            <span className="text-base">{getDisasterType(selectedType).icon}</span>
+            <span className="font-semibold">{getDisasterType(selectedType).label}</span>
+          </div>
+        )}
+      </div>
+
       {/* Admin Notes */}
       <div>
         <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">
@@ -115,11 +165,47 @@ export default function VerificationPanel({ report, onDone }) {
           variant="success"
           onClick={handleVerify}
           loading={processing}
+          disabled={!selectedType}
           className="flex-1"
         >
           Verify Report
         </Button>
       </div>
+
+      {/* Delete Report */}
+      {!showDeleteConfirm ? (
+        <button
+          onClick={() => setShowDeleteConfirm(true)}
+          className="w-full text-center text-[11px] text-red-400 hover:text-red-600 transition-colors py-1"
+        >
+          Delete this report permanently
+        </button>
+      ) : (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 space-y-2">
+          <p className="text-xs font-bold text-red-700 text-center">
+            Are you sure? This cannot be undone.
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowDeleteConfirm(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={handleDelete}
+              loading={processing}
+              className="flex-1"
+            >
+              Delete Permanently
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

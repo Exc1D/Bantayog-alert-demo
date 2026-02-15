@@ -4,7 +4,10 @@ import { db } from '../../utils/firebaseConfig';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { getDisasterType } from '../../data/disasterTypes';
 import { formatTimeAgo } from '../../utils/timeUtils';
+import { deleteReport } from '../../hooks/useReports';
+import { useToast } from '../Common/Toast';
 import Modal from '../Common/Modal';
+import Button from '../Common/Button';
 import VerificationPanel from './VerificationPanel';
 import ResolutionModal from './ResolutionModal';
 import LoadingSpinner from '../Common/LoadingSpinner';
@@ -22,9 +25,12 @@ export default function AdminDashboard() {
   const [selectedReport, setSelectedReport] = useState(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [showResolveModal, setShowResolveModal] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [activeTab, setActiveTab] = useState('pending');
 
   const { isAdmin, isSuperAdmin, userProfile } = useAuthContext();
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -65,6 +71,19 @@ export default function AdminDashboard() {
       unsubVerified();
     };
   }, [isAdmin, isSuperAdmin, userProfile?.municipality]);
+
+  const handleDeleteReport = async (reportId) => {
+    setDeleting(true);
+    try {
+      await deleteReport(reportId);
+      addToast('Report deleted permanently', 'success');
+    } catch (error) {
+      addToast('Failed to delete report', 'error');
+    } finally {
+      setDeleting(false);
+      setDeleteConfirmId(null);
+    }
+  };
 
   if (!isAdmin) {
     return (
@@ -151,18 +170,20 @@ export default function AdminDashboard() {
             return (
               <div
                 key={report.id}
-                className="bg-white rounded-xl p-3 shadow-card border border-stone-100 hover:shadow-card-hover transition-shadow cursor-pointer active:scale-[0.99]"
-                onClick={() => {
-                  setSelectedReport(report);
-                  if (activeTab === 'pending') {
-                    setShowVerifyModal(true);
-                  } else {
-                    setShowResolveModal(true);
-                  }
-                }}
+                className="bg-white rounded-xl p-3 shadow-card border border-stone-100 hover:shadow-card-hover transition-shadow"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2.5 min-w-0">
+                  <div
+                    className="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer active:scale-[0.99]"
+                    onClick={() => {
+                      setSelectedReport(report);
+                      if (activeTab === 'pending') {
+                        setShowVerifyModal(true);
+                      } else {
+                        setShowResolveModal(true);
+                      }
+                    }}
+                  >
                     <span className="text-lg">{disasterType.icon}</span>
                     <div className="min-w-0">
                       <p className="font-bold text-xs uppercase tracking-wide">{disasterType.label}</p>
@@ -171,11 +192,62 @@ export default function AdminDashboard() {
                       </p>
                     </div>
                   </div>
-                  <span className={`${sevStyle} px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide shrink-0`}>
-                    {report.disaster?.severity}
-                  </span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`${sevStyle} px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide`}>
+                      {report.disaster?.severity}
+                    </span>
+                    {/* Delete button */}
+                    {deleteConfirmId === report.id ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleDeleteReport(report.id)}
+                          disabled={deleting}
+                          className="bg-red-600 text-white rounded-lg p-1.5 hover:bg-red-700 transition-colors disabled:opacity-40"
+                          title="Confirm delete"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirmId(null)}
+                          className="bg-stone-200 text-stone-600 rounded-lg p-1.5 hover:bg-stone-300 transition-colors"
+                          title="Cancel"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteConfirmId(report.id);
+                        }}
+                        className="text-stone-300 hover:text-red-500 transition-colors p-1"
+                        title="Delete report"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <p className="text-[11px] text-textLight mt-1.5 line-clamp-2 pl-[30px]">
+                <p
+                  className="text-[11px] text-textLight mt-1.5 line-clamp-2 pl-[30px] cursor-pointer"
+                  onClick={() => {
+                    setSelectedReport(report);
+                    if (activeTab === 'pending') {
+                      setShowVerifyModal(true);
+                    } else {
+                      setShowResolveModal(true);
+                    }
+                  }}
+                >
                   {report.disaster?.description}
                 </p>
               </div>

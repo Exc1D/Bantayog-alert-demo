@@ -10,6 +10,7 @@ import {
   getDocs,
   addDoc,
   updateDoc,
+  deleteDoc,
   doc,
   increment,
   arrayUnion,
@@ -245,15 +246,21 @@ export async function removeUpvote(reportId, userId) {
   });
 }
 
-export async function verifyReport(reportId, adminId, adminRole, notes = '') {
+export async function verifyReport(reportId, adminId, adminRole, notes = '', disasterType = null) {
   const reportRef = doc(db, 'reports', reportId);
-  await updateDoc(reportRef, {
+  const updateData = {
     'verification.status': 'verified',
     'verification.verifiedBy': adminId,
     'verification.verifiedAt': serverTimestamp(),
     'verification.verifierRole': adminRole,
     'verification.notes': notes
-  });
+  };
+
+  if (disasterType) {
+    updateData['disaster.type'] = disasterType;
+  }
+
+  await updateDoc(reportRef, updateData);
 }
 
 export async function rejectReport(reportId, adminId, adminRole, notes = '') {
@@ -288,4 +295,9 @@ export async function resolveReport(reportId, adminId, evidencePhotos, actionsTa
     'verification.resolution.resolutionNotes': resolutionNotes,
     'verification.resolution.resourcesUsed': resourcesUsed
   });
+}
+
+export async function deleteReport(reportId) {
+  const reportRef = doc(db, 'reports', reportId);
+  await deleteDoc(reportRef);
 }

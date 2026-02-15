@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../utils/firebaseConfig';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { getDisasterType } from '../../data/disasterTypes';
@@ -37,33 +37,46 @@ export default function AdminDashboard() {
 
     const pendingQuery = query(
       collection(db, 'reports'),
-      where('verification.status', '==', 'pending'),
-      orderBy('timestamp', 'desc')
+      where('verification.status', '==', 'pending')
     );
 
     const verifiedQuery = query(
       collection(db, 'reports'),
-      where('verification.status', '==', 'verified'),
-      orderBy('timestamp', 'desc')
+      where('verification.status', '==', 'verified')
     );
 
+    // Sort client-side by timestamp descending (avoids composite index requirement)
+    const sortByTimestamp = (docs) =>
+      docs.sort((a, b) => {
+        const aTime = a.timestamp?.seconds || 0;
+        const bTime = b.timestamp?.seconds || 0;
+        return bTime - aTime;
+      });
+
     const unsubPending = onSnapshot(pendingQuery, (snapshot) => {
-      const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      let docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      docs = sortByTimestamp(docs);
       if (!isSuperAdmin && userProfile?.municipality) {
         setPendingReports(docs.filter(d => d.location?.municipality === userProfile.municipality));
       } else {
         setPendingReports(docs);
       }
       setLoading(false);
+    }, (err) => {
+      console.error('Pending reports query failed:', err);
+      setLoading(false);
     });
 
     const unsubVerified = onSnapshot(verifiedQuery, (snapshot) => {
-      const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      let docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      docs = sortByTimestamp(docs);
       if (!isSuperAdmin && userProfile?.municipality) {
         setVerifiedReports(docs.filter(d => d.location?.municipality === userProfile.municipality));
       } else {
         setVerifiedReports(docs);
       }
+    }, (err) => {
+      console.error('Verified reports query failed:', err);
     });
 
     return () => {

@@ -46,12 +46,18 @@ export default function AdminDashboard() {
     );
 
     // Sort client-side by timestamp descending (avoids composite index requirement)
+    const getTimestampValue = (doc) => {
+      const ts = doc?.timestamp;
+      if (!ts) return 0;
+      if (typeof ts?.toMillis === 'function') return ts.toMillis();
+      if (ts instanceof Date) return ts.getTime();
+      if (typeof ts?.seconds === 'number') return ts.seconds * 1000;
+      if (typeof ts === 'number') return ts;
+      return 0;
+    };
+
     const sortByTimestamp = (docs) =>
-      docs.sort((a, b) => {
-        const aTime = a.timestamp?.seconds || 0;
-        const bTime = b.timestamp?.seconds || 0;
-        return bTime - aTime;
-      });
+      [...docs].sort((a, b) => getTimestampValue(b) - getTimestampValue(a));
 
     const unsubPending = onSnapshot(pendingQuery, (snapshot) => {
       let docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));

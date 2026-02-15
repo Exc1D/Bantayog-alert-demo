@@ -18,6 +18,25 @@ const SEV_STYLES = {
   minor: 'bg-emerald-600 text-white'
 };
 
+// Sort client-side by timestamp descending (avoids composite index requirement)
+function getTimestampValue(doc) {
+  const ts = doc?.timestamp;
+  if (!ts) return 0;
+  if (typeof ts?.toMillis === 'function') return ts.toMillis();
+  if (ts instanceof Date) return ts.getTime();
+  if (typeof ts?.seconds === 'number') return ts.seconds * 1000;
+  if (typeof ts === 'number') return ts;
+  return 0;
+}
+
+function sortByTimestamp(docs) {
+  return [...docs].sort((a, b) => {
+    const bVal = getTimestampValue(b);
+    const aVal = getTimestampValue(a);
+    return (Number.isFinite(bVal) ? bVal : 0) - (Number.isFinite(aVal) ? aVal : 0);
+  });
+}
+
 export default function AdminDashboard() {
   const [pendingReports, setPendingReports] = useState([]);
   const [verifiedReports, setVerifiedReports] = useState([]);
@@ -44,20 +63,6 @@ export default function AdminDashboard() {
       collection(db, 'reports'),
       where('verification.status', '==', 'verified')
     );
-
-    // Sort client-side by timestamp descending (avoids composite index requirement)
-    const getTimestampValue = (doc) => {
-      const ts = doc?.timestamp;
-      if (!ts) return 0;
-      if (typeof ts?.toMillis === 'function') return ts.toMillis();
-      if (ts instanceof Date) return ts.getTime();
-      if (typeof ts?.seconds === 'number') return ts.seconds * 1000;
-      if (typeof ts === 'number') return ts;
-      return 0;
-    };
-
-    const sortByTimestamp = (docs) =>
-      [...docs].sort((a, b) => getTimestampValue(b) - getTimestampValue(a));
 
     const unsubPending = onSnapshot(pendingQuery, (snapshot) => {
       let docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));

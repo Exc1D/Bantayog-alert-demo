@@ -64,9 +64,17 @@ export default function Header() {
         </span>
 
         {user && !user.isAnonymous && (
-          <div className="w-7 h-7 bg-white/10 border border-white/15 rounded-full flex items-center justify-center text-xs font-bold text-white/80">
-            {(userProfile?.name || user.displayName || 'U')[0].toUpperCase()}
-          </div>
+          userProfile?.photoURL || user.photoURL ? (
+            <img
+              src={userProfile?.photoURL || user.photoURL}
+              alt="Profile"
+              className="w-7 h-7 rounded-full object-cover border border-white/20"
+            />
+          ) : (
+            <div className="w-7 h-7 bg-white/10 border border-white/15 rounded-full flex items-center justify-center text-xs font-bold text-white/80">
+              {(userProfile?.name || user.displayName || 'U')[0].toUpperCase()}
+            </div>
+          )
         )}
       </div>
     </header>

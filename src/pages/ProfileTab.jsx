@@ -293,12 +293,6 @@ function UserProfile() {
       return;
     }
 
-    const verificationText = window.prompt('Type DELETE to confirm account deletion.');
-    if (verificationText !== 'DELETE') {
-      addToast('Account deletion cancelled. Confirmation text did not match.', 'warning');
-      return;
-    }
-
     setDeletingAccount(true);
     try {
       await removeAccount();

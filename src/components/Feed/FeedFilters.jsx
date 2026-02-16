@@ -1,4 +1,3 @@
-import { DISASTER_TYPES } from '../../data/disasterTypes';
 import { MUNICIPALITIES } from '../../utils/constants';
 
 export default function FeedFilters({ filters, onFilterChange }) {
@@ -11,30 +10,6 @@ export default function FeedFilters({ filters, onFilterChange }) {
   return (
     <div className="bg-white rounded-xl p-3 shadow-card mb-3 border border-stone-100">
       <div className="flex gap-2 flex-wrap">
-        <select
-          className={selectClass}
-          value={filters.type || 'all'}
-          onChange={(e) => handleChange('type', e.target.value)}
-        >
-          <option value="all">All Hazard Types</option>
-          {DISASTER_TYPES.map(type => (
-            <option key={type.id} value={type.id}>
-              {type.icon} {type.label}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className={selectClass}
-          value={filters.status || 'all'}
-          onChange={(e) => handleChange('status', e.target.value)}
-        >
-          <option value="all">All Status</option>
-          <option value="verified">Verified</option>
-          <option value="resolved">Resolved</option>
-          <option value="pending">Pending</option>
-        </select>
-
         <select
           className={selectClass}
           value={filters.municipality || 'all'}

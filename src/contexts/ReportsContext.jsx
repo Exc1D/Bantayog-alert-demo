@@ -5,8 +5,6 @@ const ReportsContext = createContext(null);
 
 export function ReportsProvider({ children }) {
   const [filters, setFilters] = useState({
-    type: 'all',
-    status: 'all',
     municipality: 'all',
     sort: 'recent'
   });

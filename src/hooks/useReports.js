@@ -34,22 +34,6 @@ export function useReports(filters = {}) {
     setLoading(true);
     let q = query(collection(db, 'reports'), orderBy('timestamp', 'desc'), limit(FEED_PAGE_SIZE));
 
-    if (filters.type && filters.type !== 'all') {
-      q = query(collection(db, 'reports'),
-        where('disaster.type', '==', filters.type),
-        orderBy('timestamp', 'desc'),
-        limit(FEED_PAGE_SIZE)
-      );
-    }
-
-    if (filters.status && filters.status !== 'all') {
-      q = query(collection(db, 'reports'),
-        where('verification.status', '==', filters.status),
-        orderBy('timestamp', 'desc'),
-        limit(FEED_PAGE_SIZE)
-      );
-    }
-
     if (filters.municipality && filters.municipality !== 'all') {
       q = query(collection(db, 'reports'),
         where('location.municipality', '==', filters.municipality),
@@ -70,7 +54,7 @@ export function useReports(filters = {}) {
     });
 
     return () => unsubscribe();
-  }, [filters.type, filters.status, filters.municipality]);
+  }, [filters.municipality]);
 
   const loadMore = useCallback(async () => {
     if (!lastDoc || !hasMore) return;

@@ -1,4 +1,3 @@
-import { DISASTER_TYPES } from '../../data/disasterTypes';
 import { MUNICIPALITIES } from '../../utils/constants';
 
 export default function MapControls({ filters, onFilterChange, reportCount }) {
@@ -8,30 +7,6 @@ export default function MapControls({ filters, onFilterChange, reportCount }) {
     <div className="absolute top-3 left-3 right-3 z-[1000] pointer-events-none">
       <div className="bg-primary/90 backdrop-blur-sm rounded-xl shadow-dark p-2.5 pointer-events-auto">
         <div className="flex flex-wrap gap-2 items-center">
-          <select
-            value={filters.type || 'all'}
-            onChange={(e) => onFilterChange({ ...filters, type: e.target.value })}
-            className={selectClass}
-          >
-            <option value="all">All Types</option>
-            {DISASTER_TYPES.map(type => (
-              <option key={type.id} value={type.id}>
-                {type.icon} {type.label}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={filters.status || 'all'}
-            onChange={(e) => onFilterChange({ ...filters, status: e.target.value })}
-            className={selectClass}
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="verified">Verified</option>
-            <option value="resolved">Resolved</option>
-          </select>
-
           <select
             value={filters.municipality || 'all'}
             onChange={(e) => onFilterChange({ ...filters, municipality: e.target.value })}

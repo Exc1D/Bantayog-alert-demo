@@ -26,9 +26,9 @@
   z-index: 1;
 }
 
-/* Push bottom-left controls above the fixed REPORT FAB */
+/* Position zoom controls above the location button */
 .leaflet-bottom.leaflet-left {
-  bottom: 10px;
+  bottom: 62px;
 }
 
 /* Clean zoom control styling */
@@ -37,7 +37,7 @@
   border-radius: 10px !important;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
-  margin-bottom: 12px !important;
+  margin: 0 0 0 10px !important;
 }
 
 .leaflet-control-zoom a {

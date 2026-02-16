@@ -23,51 +23,28 @@ function flyToCurrentPosition(map) {
   );
 }
 
+// Captures the Leaflet map instance into a ref so it can be used outside MapContainer
+function MapRefCapture({ mapRef }) {
+  const map = useMap();
+  useEffect(() => {
+    mapRef.current = map;
+  }, [map, mapRef]);
+  return null;
+}
+
 function LocateOnMount() {
   const map = useMap();
-
   useEffect(() => {
     if (navigator.geolocation) {
       flyToCurrentPosition(map);
     }
   }, [map]);
-
   return null;
 }
 
-function LocationButton() {
-  const map = useMap();
-  const buttonRef = useRef(null);
-
-  useEffect(() => {
-    if (buttonRef.current) {
-      L.DomEvent.disableClickPropagation(buttonRef.current);
-    }
-  }, []);
-
-  const handleLocate = () => {
-    flyToCurrentPosition(map);
-  };
-
-  return (
-    <div className="leaflet-bottom leaflet-left z-[1000]" style={{ marginBottom: '10px', marginLeft: '10px' }}>
-      <button
-        ref={buttonRef}
-        onClick={handleLocate}
-        className="flex items-center justify-center bg-white text-primary rounded-lg shadow-dark hover:bg-stone-50 active:bg-stone-100 transition-colors"
-        style={{ width: '40px', height: '40px' }}
-        title="My Location"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-          <circle cx="12" cy="12" r="3" />
-          <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
-        </svg>
-      </button>
-    </div>
-  );
-}
-
 export default function LeafletMap({ reports = [], onReportClick }) {
+  const mapRef = useRef(null);
+
   const [filters, setFilters] = useState({
     municipality: 'all'
   });
@@ -83,6 +60,10 @@ export default function LeafletMap({ reports = [], onReportClick }) {
     if (onReportClick) onReportClick(report);
   }, [onReportClick]);
 
+  const handleLocate = () => {
+    if (mapRef.current) flyToCurrentPosition(mapRef.current);
+  };
+
   return (
     <div className="relative w-full h-full">
       <MapControls
@@ -90,6 +71,19 @@ export default function LeafletMap({ reports = [], onReportClick }) {
         onFilterChange={setFilters}
         reportCount={filteredReports.length}
       />
+
+      {/* Location button — rendered outside MapContainer for precise positioning */}
+      <button
+        onClick={handleLocate}
+        className="absolute z-[1000] flex items-center justify-center bg-white text-primary rounded-lg shadow-dark hover:bg-stone-50 active:bg-stone-100 transition-colors"
+        style={{ bottom: '10px', left: '10px', width: '40px', height: '40px' }}
+        title="My Location"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+        </svg>
+      </button>
 
       <MapContainer
         center={MAP_CENTER}
@@ -99,6 +93,7 @@ export default function LeafletMap({ reports = [], onReportClick }) {
         className="w-full h-full"
         zoomControl={false}
       >
+        {/* Zoom controls — bottomleft, CSS pushes them above the location button */}
         <ZoomControl position="bottomleft" />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -125,7 +120,7 @@ export default function LeafletMap({ reports = [], onReportClick }) {
         </MarkerClusterGroup>
 
         <LocateOnMount />
-        <LocationButton />
+        <MapRefCapture mapRef={mapRef} />
       </MapContainer>
     </div>
   );

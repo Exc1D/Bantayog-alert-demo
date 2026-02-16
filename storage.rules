@@ -29,5 +29,13 @@ service firebase.storage {
         && isAllowedImage()
         && request.resource.size < 10 * 1024 * 1024;
     }
+
+    match /avatars/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isSignedIn()
+        && request.auth.uid == userId
+        && isAllowedImage()
+        && request.resource.size < 5 * 1024 * 1024;
+    }
   }
 }

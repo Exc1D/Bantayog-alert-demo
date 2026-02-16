@@ -5,10 +5,13 @@ import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   updateProfile,
-  signInAnonymously
+  signInAnonymously,
+  sendPasswordResetEmail,
+  deleteUser
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db } from '../utils/firebaseConfig';
+import { doc, setDoc, getDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { auth, db, storage } from '../utils/firebaseConfig';
 
 export function useAuth() {
   const [user, setUser] = useState(null);
@@ -51,6 +54,7 @@ export function useAuth() {
       userId: credential.user.uid,
       email,
       name,
+      photoURL: '',
       municipality: municipality || '',
       role: 'citizen',
       createdAt: serverTimestamp(),
@@ -81,6 +85,52 @@ export function useAuth() {
     setUserProfile(null);
   };
 
+  const requestPasswordReset = async (email) => {
+    await sendPasswordResetEmail(auth, email);
+  };
+
+  const updateProfilePicture = async (file) => {
+    if (!auth.currentUser) {
+      throw new Error('You must be signed in to update your profile picture.');
+    }
+
+    const avatarRef = ref(storage, `avatars/${auth.currentUser.uid}/${Date.now()}-${file.name}`);
+    await uploadBytes(avatarRef, file);
+    const photoURL = await getDownloadURL(avatarRef);
+
+    await updateProfile(auth.currentUser, { photoURL });
+    await setDoc(doc(db, 'users', auth.currentUser.uid), { photoURL }, { merge: true });
+    setUserProfile((prev) => ({ ...(prev || {}), photoURL }));
+
+    return photoURL;
+  };
+
+  const removeAccount = async () => {
+    if (!auth.currentUser) {
+      throw new Error('No signed in user found.');
+    }
+
+    const uid = auth.currentUser.uid;
+    const currentPhotoURL = auth.currentUser.photoURL || userProfile?.photoURL;
+
+    if (currentPhotoURL && currentPhotoURL.includes('/avatars%2F')) {
+      try {
+        const match = currentPhotoURL.match(/\/o\/(.*?)\?/);
+        if (match?.[1]) {
+          const storagePath = decodeURIComponent(match[1]);
+          await deleteObject(ref(storage, storagePath));
+        }
+      } catch (error) {
+        console.warn('Failed to delete profile image:', error);
+      }
+    }
+
+    await deleteDoc(doc(db, 'users', uid));
+    await deleteUser(auth.currentUser);
+    setUser(null);
+    setUserProfile(null);
+  };
+
   const isAdmin = userProfile?.role?.startsWith('admin_') || userProfile?.role === 'superadmin_provincial';
   const isSuperAdmin = userProfile?.role === 'superadmin_provincial';
 
@@ -92,6 +142,9 @@ export function useAuth() {
     signUp,
     signInAsGuest,
     signOut,
+    requestPasswordReset,
+    updateProfilePicture,
+    removeAccount,
     isAdmin,
     isSuperAdmin
   };

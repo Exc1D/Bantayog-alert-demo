@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
 import { MUNICIPALITIES } from '../utils/constants';
 import Button from '../components/Common/Button';
@@ -9,16 +9,28 @@ function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showResetPrompt, setShowResetPrompt] = useState(false);
   const [name, setName] = useState('');
   const [municipality, setMunicipality] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
-  const { signIn, signUp, signInAsGuest } = useAuthContext();
+  const { signIn, signUp, signInAsGuest, requestPasswordReset } = useAuthContext();
   const { addToast } = useToast();
+
+  const toggleAuthMode = () => {
+    setIsLogin((prev) => !prev);
+    setPassword('');
+    setConfirmPassword('');
+    setShowResetPrompt(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setShowResetPrompt(false);
 
     try {
       if (isLogin) {
@@ -30,13 +42,42 @@ function AuthForm() {
           setLoading(false);
           return;
         }
+
+        if (password !== confirmPassword) {
+          addToast('Passwords do not match', 'warning');
+          setLoading(false);
+          return;
+        }
+
         await signUp(email, password, name, municipality);
         addToast('Account created successfully', 'success');
       }
     } catch (error) {
-      addToast(error.message || 'Authentication failed', 'error');
+      if (isLogin && error?.code === 'auth/too-many-requests') {
+        setShowResetPrompt(true);
+        addToast('Too many unsuccessful tries. You can reset your password below.', 'warning');
+      } else {
+        addToast(error.message || 'Authentication failed', 'error');
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!email.trim()) {
+      addToast('Enter your email to receive a password reset link.', 'warning');
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      await requestPasswordReset(email.trim());
+      addToast('Password reset email sent. Please check your inbox.', 'success');
+    } catch (error) {
+      addToast(error.message || 'Unable to send password reset email.', 'error');
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -52,7 +93,7 @@ function AuthForm() {
     }
   };
 
-  const inputClass = "w-full border border-stone-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent bg-white";
+  const inputClass = 'w-full border border-stone-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent bg-white';
 
   return (
     <div className="max-w-md mx-auto">
@@ -95,7 +136,7 @@ function AuthForm() {
                   className={inputClass}
                 >
                   <option value="">Select Municipality</option>
-                  {MUNICIPALITIES.map(m => (
+                  {MUNICIPALITIES.map((m) => (
                     <option key={m} value={m}>{m}</option>
                   ))}
                 </select>
@@ -118,7 +159,7 @@ function AuthForm() {
           <div>
             <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">Password</label>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className={inputClass}
@@ -127,6 +168,31 @@ function AuthForm() {
               required
             />
           </div>
+
+          {!isLogin && (
+            <div>
+              <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">Confirm Password</label>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className={inputClass}
+                placeholder="Re-enter password"
+                minLength={6}
+                required
+              />
+            </div>
+          )}
+
+          <label className="flex items-center gap-2 text-xs text-textLight cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={showPassword}
+              onChange={(e) => setShowPassword(e.target.checked)}
+              className="rounded border-stone-300"
+            />
+            Show password
+          </label>
 
           <Button
             type="submit"
@@ -138,9 +204,25 @@ function AuthForm() {
           </Button>
         </form>
 
+        {isLogin && showResetPrompt && (
+          <div className="mt-3 p-3 rounded-lg border border-amber-200 bg-amber-50">
+            <p className="text-xs text-amber-800 mb-2">
+              Too many unsuccessful login attempts were detected. You can request a password reset link.
+            </p>
+            <Button
+              variant="secondary"
+              onClick={handlePasswordReset}
+              loading={resetLoading}
+              className="w-full"
+            >
+              Send Password Reset Email
+            </Button>
+          </div>
+        )}
+
         <div className="mt-3 text-center">
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={toggleAuthMode}
             className="text-xs text-accent hover:underline font-medium"
           >
             {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
@@ -163,8 +245,11 @@ function AuthForm() {
 }
 
 function UserProfile() {
-  const { user, userProfile, signOut, isAdmin } = useAuthContext();
+  const { user, userProfile, signOut, isAdmin, updateProfilePicture, removeAccount } = useAuthContext();
   const { addToast } = useToast();
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const fileInputRef = useRef(null);
 
   const handleSignOut = async () => {
     try {
@@ -175,15 +260,73 @@ function UserProfile() {
     }
   };
 
+  const handleChoosePhoto = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handlePhotoChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      addToast('Please upload an image file.', 'warning');
+      return;
+    }
+
+    setUploadingPhoto(true);
+    try {
+      await updateProfilePicture(file);
+      addToast('Profile picture updated.', 'success');
+    } catch (error) {
+      addToast(error.message || 'Could not update profile picture.', 'error');
+    } finally {
+      setUploadingPhoto(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm('Delete your account permanently? This action cannot be undone.');
+    if (!confirmed) {
+      return;
+    }
+
+    setDeletingAccount(true);
+    try {
+      await removeAccount();
+      addToast('Your account has been deleted.', 'info');
+    } catch (error) {
+      if (error?.code === 'auth/requires-recent-login') {
+        addToast('Please sign in again before deleting your account.', 'warning');
+      } else {
+        addToast(error.message || 'Failed to delete account.', 'error');
+      }
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
+  const profilePhoto = userProfile?.photoURL || user?.photoURL;
+
   return (
     <div className="space-y-3">
-      {/* Profile Card */}
       <div className="bg-white rounded-xl p-5 shadow-card border border-stone-100">
         <div className="flex items-center gap-3">
-          <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center text-white text-xl font-bold shrink-0">
-            {(userProfile?.name || user?.displayName || 'U')[0].toUpperCase()}
-          </div>
-          <div className="min-w-0">
+          {profilePhoto ? (
+            <img
+              src={profilePhoto}
+              alt="User profile"
+              className="w-14 h-14 rounded-full object-cover shrink-0"
+            />
+          ) : (
+            <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center text-white text-xl font-bold shrink-0">
+              {(userProfile?.name || user?.displayName || 'U')[0].toUpperCase()}
+            </div>
+          )}
+
+          <div className="min-w-0 flex-1">
             <h2 className="text-lg font-bold truncate">
               {userProfile?.name || user?.displayName || 'Anonymous User'}
             </h2>
@@ -195,7 +338,26 @@ function UserProfile() {
           </div>
         </div>
 
-        {/* Stats */}
+        {!user?.isAnonymous && (
+          <div className="mt-4 pt-4 border-t border-stone-100 space-y-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoChange}
+            />
+            <Button
+              variant="secondary"
+              onClick={handleChoosePhoto}
+              loading={uploadingPhoto}
+              className="w-full"
+            >
+              Upload Profile Picture
+            </Button>
+          </div>
+        )}
+
         {userProfile?.stats && (
           <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-stone-100">
             <div className="text-center">
@@ -213,16 +375,28 @@ function UserProfile() {
           </div>
         )}
 
-        <Button
-          variant="secondary"
-          onClick={handleSignOut}
-          className="w-full mt-4"
-        >
-          Sign Out
-        </Button>
+        <div className="mt-4 space-y-2">
+          <Button
+            variant="secondary"
+            onClick={handleSignOut}
+            className="w-full"
+          >
+            Sign Out
+          </Button>
+
+          {!user?.isAnonymous && (
+            <Button
+              variant="ghost"
+              onClick={handleDeleteAccount}
+              loading={deletingAccount}
+              className="w-full text-red-600 hover:text-red-700"
+            >
+              Delete Account
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* Admin Dashboard */}
       {isAdmin && <AdminDashboard />}
     </div>
   );

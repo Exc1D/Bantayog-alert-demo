@@ -12,6 +12,8 @@ import VerificationPanel from './VerificationPanel';
 import ResolutionModal from './ResolutionModal';
 import LoadingSpinner from '../Common/LoadingSpinner';
 
+const FEED_RESOLVED_RETENTION_MS = 24 * 60 * 60 * 1000;
+
 const SEV_STYLES = {
   critical: 'bg-red-600 text-white',
   moderate: 'bg-amber-500 text-white',
@@ -40,6 +42,7 @@ function sortByTimestamp(docs) {
 export default function AdminDashboard() {
   const [pendingReports, setPendingReports] = useState([]);
   const [verifiedReports, setVerifiedReports] = useState([]);
+  const [archivedReports, setArchivedReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
@@ -62,6 +65,11 @@ export default function AdminDashboard() {
     const verifiedQuery = query(
       collection(db, 'reports'),
       where('verification.status', '==', 'verified')
+    );
+
+    const resolvedQuery = query(
+      collection(db, 'reports'),
+      where('verification.status', '==', 'resolved')
     );
 
     const unsubPending = onSnapshot(pendingQuery, (snapshot) => {
@@ -90,9 +98,30 @@ export default function AdminDashboard() {
       console.error('Verified reports query failed:', err);
     });
 
+    const unsubResolved = onSnapshot(resolvedQuery, (snapshot) => {
+      const now = Date.now();
+      let docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      docs = docs.filter((doc) => {
+        const resolvedAtMs = getTimestampValue(doc.verification?.resolution?.resolvedAt);
+        return resolvedAtMs > 0 && (now - resolvedAtMs) > FEED_RESOLVED_RETENTION_MS;
+      });
+
+      docs = sortByTimestamp(docs);
+
+      if (!isSuperAdmin && userProfile?.municipality) {
+        setArchivedReports(docs.filter(d => d.location?.municipality === userProfile.municipality));
+      } else {
+        setArchivedReports(docs);
+      }
+    }, (err) => {
+      console.error('Archived reports query failed:', err);
+    });
+
     return () => {
       unsubPending();
       unsubVerified();
+      unsubResolved();
     };
   }, [isAdmin, isSuperAdmin, userProfile?.municipality]);
 
@@ -128,7 +157,11 @@ export default function AdminDashboard() {
     return <LoadingSpinner text="Loading dashboard..." />;
   }
 
-  const displayReports = activeTab === 'pending' ? pendingReports : verifiedReports;
+  const displayReports = activeTab === 'pending'
+    ? pendingReports
+    : activeTab === 'verified'
+      ? verifiedReports
+      : archivedReports;
 
   return (
     <div>
@@ -146,6 +179,8 @@ export default function AdminDashboard() {
           <span className="text-xs text-amber-400 font-bold">{pendingReports.length} pending</span>
           <span className="text-white/20">&bull;</span>
           <span className="text-xs text-blue-400 font-bold">{verifiedReports.length} awaiting resolution</span>
+          <span className="text-white/20">&bull;</span>
+          <span className="text-xs text-emerald-300 font-bold">{archivedReports.length} archived</span>
         </div>
       </div>
 
@@ -171,6 +206,16 @@ export default function AdminDashboard() {
         >
           Needs Resolution ({verifiedReports.length})
         </button>
+        <button
+          onClick={() => setActiveTab('archived')}
+          className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
+            activeTab === 'archived'
+              ? 'bg-emerald-600 text-white shadow-sm'
+              : 'bg-white text-textLight hover:bg-stone-50 border border-stone-200'
+          }`}
+        >
+          Archived ({archivedReports.length})
+        </button>
       </div>
 
       {/* Report List */}
@@ -182,7 +227,11 @@ export default function AdminDashboard() {
             </svg>
           </div>
           <p className="font-semibold text-sm">
-            {activeTab === 'pending' ? 'No pending reports' : 'All reports resolved'}
+            {activeTab === 'pending'
+              ? 'No pending reports'
+              : activeTab === 'verified'
+                ? 'All reports resolved'
+                : 'No archived reports'}
           </p>
         </div>
       ) : (
@@ -203,7 +252,7 @@ export default function AdminDashboard() {
                       setSelectedReport(report);
                       if (activeTab === 'pending') {
                         setShowVerifyModal(true);
-                      } else {
+                      } else if (activeTab === 'verified') {
                         setShowResolveModal(true);
                       }
                     }}
@@ -267,7 +316,7 @@ export default function AdminDashboard() {
                     setSelectedReport(report);
                     if (activeTab === 'pending') {
                       setShowVerifyModal(true);
-                    } else {
+                    } else if (activeTab === 'verified') {
                       setShowResolveModal(true);
                     }
                   }}

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import MarkerClusterGroup from './MarkerClusterGroup';
 import 'leaflet/dist/leaflet.css';
@@ -15,11 +15,21 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png'
 });
 
+function flyToCurrentPosition(map) {
+  navigator.geolocation.getCurrentPosition(
+    (pos) => map.flyTo([pos.coords.latitude, pos.coords.longitude], 15),
+    () => {},
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
 function LocateOnMount() {
   const map = useMap();
 
   useEffect(() => {
-    map.locate({ setView: true, maxZoom: 15 });
+    if (navigator.geolocation) {
+      flyToCurrentPosition(map);
+    }
   }, [map]);
 
   return null;
@@ -27,14 +37,22 @@ function LocateOnMount() {
 
 function LocationButton() {
   const map = useMap();
+  const buttonRef = useRef(null);
+
+  useEffect(() => {
+    if (buttonRef.current) {
+      L.DomEvent.disableClickPropagation(buttonRef.current);
+    }
+  }, []);
 
   const handleLocate = () => {
-    map.locate({ setView: true, maxZoom: 15 });
+    flyToCurrentPosition(map);
   };
 
   return (
-    <div className="leaflet-top leaflet-right z-[1000]" style={{ marginTop: '12px', marginRight: '12px' }}>
+    <div className="leaflet-bottom leaflet-left z-[1000]" style={{ marginBottom: '20px', marginLeft: '12px' }}>
       <button
+        ref={buttonRef}
         onClick={handleLocate}
         className="flex items-center gap-1.5 bg-primary text-white rounded-lg shadow-dark px-3 py-2.5 hover:bg-secondary transition-colors font-medium text-xs"
         title="My Location"

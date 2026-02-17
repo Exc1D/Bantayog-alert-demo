@@ -1,0 +1,271 @@
+{
+  "featureCount": 12,
+  "bbox": {
+    "minLng": 122.35,
+    "maxLng": 123.12,
+    "minLat": 13.98,
+    "maxLat": 14.42
+  },
+  "gridSize": 260,
+  "samplePoints": 67600,
+  "coverageRatio": 0.4733579881656805,
+  "uncoveredRatio": 0.5266420118343196,
+  "overlapRatio": 0.11238165680473373,
+  "centroidMatchCount": 12,
+  "coordChecks": [
+    {
+      "municipality": "Basud",
+      "detected": "Basud",
+      "matched": true,
+      "lat": 14.0669,
+      "lng": 122.9686
+    },
+    {
+      "municipality": "Capalonga",
+      "detected": "Capalonga",
+      "matched": true,
+      "lat": 14.3333,
+      "lng": 122.4833
+    },
+    {
+      "municipality": "Daet",
+      "detected": "Daet",
+      "matched": true,
+      "lat": 14.1122,
+      "lng": 122.9553
+    },
+    {
+      "municipality": "Jose Panganiban",
+      "detected": "Jose Panganiban",
+      "matched": true,
+      "lat": 14.2944,
+      "lng": 122.6931
+    },
+    {
+      "municipality": "Labo",
+      "detected": "Labo",
+      "matched": true,
+      "lat": 14.15,
+      "lng": 122.8
+    },
+    {
+      "municipality": "Mercedes",
+      "detected": "Mercedes",
+      "matched": true,
+      "lat": 14.1167,
+      "lng": 123.0167
+    },
+    {
+      "municipality": "Paracale",
+      "detected": "Paracale",
+      "matched": true,
+      "lat": 14.2833,
+      "lng": 122.7333
+    },
+    {
+      "municipality": "San Lorenzo Ruiz",
+      "detected": "San Lorenzo Ruiz",
+      "matched": true,
+      "lat": 14.0833,
+      "lng": 122.85
+    },
+    {
+      "municipality": "San Vicente",
+      "detected": "San Vicente",
+      "matched": true,
+      "lat": 14.1,
+      "lng": 122.8833
+    },
+    {
+      "municipality": "Santa Elena",
+      "detected": "Santa Elena",
+      "matched": true,
+      "lat": 14.1667,
+      "lng": 122.4667
+    },
+    {
+      "municipality": "Talisay",
+      "detected": "Talisay",
+      "matched": true,
+      "lat": 14.1333,
+      "lng": 122.9333
+    },
+    {
+      "municipality": "Vinzons",
+      "detected": "Vinzons",
+      "matched": true,
+      "lat": 14.1833,
+      "lng": 122.9167
+    }
+  ],
+  "geometryChecks": [
+    {
+      "municipality": "Basud",
+      "closed": true,
+      "vertices": 9,
+      "planarAreaDeg2": 0.01654999999982465
+    },
+    {
+      "municipality": "Capalonga",
+      "closed": true,
+      "vertices": 9,
+      "planarAreaDeg2": 0.02820000000019718
+    },
+    {
+      "municipality": "Daet",
+      "closed": true,
+      "vertices": 9,
+      "planarAreaDeg2": 0.013800000000173895
+    },
+    {
+      "municipality": "Jose Panganiban",
+      "closed": true,
+      "vertices": 9,
+      "planarAreaDeg2": 0.019299999999816464
+    },
+    {
+      "municipality": "Labo",
+      "closed": true,
+      "vertices": 10,
+      "planarAreaDeg2": 0.04215000000010605
+    },
+    {
+      "municipality": "Mercedes",
+      "closed": true,
+      "vertices": 9,
+      "planarAreaDeg2": 0.014350000000035834
+    },
+    {
+      "municipality": "Paracale",
+      "closed": true,
+      "vertices": 9,
+      "planarAreaDeg2": 0.014199999999846113
+    },
+    {
+      "municipality": "San Lorenzo Ruiz",
+      "closed": true,
+      "vertices": 9,
+      "planarAreaDeg2": 0.012150000000247019
+    },
+    {
+      "municipality": "San Vicente",
+      "closed": true,
+      "vertices": 9,
+      "planarAreaDeg2": 0.010700000000156251
+    },
+    {
+      "municipality": "Santa Elena",
+      "closed": true,
+      "vertices": 9,
+      "planarAreaDeg2": 0.027449999999930697
+    },
+    {
+      "municipality": "Talisay",
+      "closed": true,
+      "vertices": 9,
+      "planarAreaDeg2": 0.009499999999889042
+    },
+    {
+      "municipality": "Vinzons",
+      "closed": true,
+      "vertices": 9,
+      "planarAreaDeg2": 0.013500000000135515
+    }
+  ],
+  "topOverlapPairs": [
+    {
+      "pair": "Jose Panganiban | Paracale",
+      "count": 1729
+    },
+    {
+      "pair": "Labo | San Lorenzo Ruiz",
+      "count": 1707
+    },
+    {
+      "pair": "San Lorenzo Ruiz | San Vicente",
+      "count": 1538
+    },
+    {
+      "pair": "Labo | San Vicente",
+      "count": 1315
+    },
+    {
+      "pair": "Daet | Mercedes",
+      "count": 1312
+    },
+    {
+      "pair": "Daet | Talisay",
+      "count": 1233
+    },
+    {
+      "pair": "Labo | Vinzons",
+      "count": 1069
+    },
+    {
+      "pair": "San Vicente | Talisay",
+      "count": 1058
+    },
+    {
+      "pair": "Basud | Daet",
+      "count": 908
+    },
+    {
+      "pair": "Daet | San Vicente",
+      "count": 789
+    },
+    {
+      "pair": "Labo | Talisay",
+      "count": 765
+    },
+    {
+      "pair": "Talisay | Vinzons",
+      "count": 664
+    },
+    {
+      "pair": "Basud | Mercedes",
+      "count": 662
+    },
+    {
+      "pair": "San Lorenzo Ruiz | Talisay",
+      "count": 569
+    },
+    {
+      "pair": "Basud | San Vicente",
+      "count": 505
+    },
+    {
+      "pair": "Daet | San Lorenzo Ruiz",
+      "count": 336
+    },
+    {
+      "pair": "Daet | Vinzons",
+      "count": 332
+    },
+    {
+      "pair": "Basud | Talisay",
+      "count": 328
+    },
+    {
+      "pair": "Basud | San Lorenzo Ruiz",
+      "count": 324
+    },
+    {
+      "pair": "Daet | Labo",
+      "count": 276
+    }
+  ],
+  "overlapTieBreakCheck": {
+    "description": "Overlap tie-break with barangay=Maslog should resolve to San Lorenzo Ruiz",
+    "input": {
+      "lat": 14.035,
+      "lng": 122.89,
+      "barangay": "Maslog"
+    },
+    "overlappingMatches": [
+      "Basud",
+      "San Lorenzo Ruiz"
+    ],
+    "detectedWithoutBarangay": "San Lorenzo Ruiz",
+    "detectedWithBarangay": "San Lorenzo Ruiz"
+  }
+}

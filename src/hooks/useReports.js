@@ -98,7 +98,8 @@ export async function submitReport(reportData, evidenceFiles, user) {
   // Detect municipality (sync, run first)
   const municipality = detectMunicipality(
     reportData.location.lat,
-    reportData.location.lng
+    reportData.location.lng,
+    { barangay: reportData.location.barangay }
   ) || reportData.location.municipality || 'Unknown';
 
   // Separate images and videos

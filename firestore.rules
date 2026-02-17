@@ -18,10 +18,6 @@ service cloud.firestore {
       );
     }
 
-    function isReportOwner() {
-      return isSignedIn() && resource.data.reporter.userId == request.auth.uid;
-    }
-
     match /reports/{reportId} {
       allow read: if true;
 
@@ -35,8 +31,6 @@ service cloud.firestore {
       allow update: if isAdmin()
         || (isSignedIn()
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['engagement'])
-          && request.resource.data.diff(resource.data).affectedKeys()
-              .intersection(['engagement']).size() > 0
           // Prevent upvote count from going below zero
           && request.resource.data.engagement.upvotes >= 0
           // Ensure the user removing their upvote was actually in the upvotedBy list

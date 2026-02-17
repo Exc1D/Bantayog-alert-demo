@@ -1,15 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
 
-function isInAppBrowser() {
+function detectInAppBrowser() {
   const ua = navigator.userAgent || '';
   return /FBAN|FBAV|Instagram|Line\/|Twitter|Snapchat|MicroMessenger|WebView/i.test(ua);
 }
 
+const IN_APP_DETECTED = detectInAppBrowser();
+
 export function useGeolocation() {
   const [location, setLocation] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isInApp, setIsInApp] = useState(false);
+  const [error, setError] = useState(
+    IN_APP_DETECTED
+      ? 'GPS is usually unavailable in this browser. Select your municipality below, or open this page in Chrome/Safari for GPS.'
+      : null
+  );
+  const [loading, setLoading] = useState(!IN_APP_DETECTED);
+  const [isInApp] = useState(IN_APP_DETECTED);
 
   const getPosition = useCallback((options = {}) => new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
@@ -29,27 +35,26 @@ export function useGeolocation() {
   const requestLocation = useCallback(async (isManualRefresh = false) => {
     setLoading(true);
 
-    const attempts = [
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: isManualRefresh ? 0 : 30000 },
-      { enableHighAccuracy: false, timeout: 20000, maximumAge: 120000 }
-    ];
+    // In-app browsers: use shorter timeouts since GPS almost never works
+    const attempts = IN_APP_DETECTED
+      ? [{ enableHighAccuracy: false, timeout: 5000, maximumAge: 120000 }]
+      : [
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: isManualRefresh ? 0 : 30000 },
+          { enableHighAccuracy: false, timeout: 20000, maximumAge: 120000 }
+        ];
 
     for (let i = 0; i < attempts.length; i += 1) {
       try {
         const position = await getPosition(attempts[i]);
         setLocation(toLocation(position));
         setError(null);
-        setIsInApp(false);
         setLoading(false);
         return;
       } catch (err) {
         if (i === attempts.length - 1) {
-          const inApp = isInAppBrowser();
-          setIsInApp(inApp);
-          if (inApp) {
+          if (IN_APP_DETECTED) {
             setError(
-              'Location services are blocked in this in-app browser. ' +
-              'Tap the \u22EF menu and select "Open in browser", or select your municipality manually below.'
+              'GPS is usually unavailable in this browser. Select your municipality below, or open this page in Chrome/Safari for GPS.'
             );
           } else {
             setError(err?.message || 'Unable to get your location.');
@@ -61,6 +66,9 @@ export function useGeolocation() {
   }, [getPosition]);
 
   useEffect(() => {
+    // Still attempt GPS even in in-app browsers — it works for a small
+    // minority of devices.  The UI already shows the manual fallback so
+    // the user isn't blocked waiting.
     requestLocation(false);
   }, [requestLocation]);
 

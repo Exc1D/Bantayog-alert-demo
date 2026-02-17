@@ -54,9 +54,11 @@ export default function ReportSubmission({
         </div>
       ) : (
         <div className="pl-5 space-y-2">
-          <p className="text-xs text-amber-600 font-medium">
-            GPS location not available.
-          </p>
+          {!isInApp && (
+            <p className="text-xs text-amber-600 font-medium">
+              GPS location not available.
+            </p>
+          )}
           {geoError && (
             <p className="text-[11px] text-red-600">
               {geoError}
@@ -66,7 +68,7 @@ export default function ReportSubmission({
           {/* Manual municipality fallback */}
           <div className="pt-1">
             <label className="block text-[10px] font-bold text-textLight uppercase tracking-wider mb-1">
-              Select your municipality manually
+              Select your municipality{isInApp ? '' : ' manually'}
             </label>
             <select
               value={manualMunicipality}

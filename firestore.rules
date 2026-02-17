@@ -5,18 +5,16 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function userDoc() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid));
-    }
-
     function userRole() {
-      return isSignedIn() && userDoc().exists() ? userDoc().data.role : '';
+      let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      return isSignedIn() && exists(userPath) ? get(userPath).data.role : '';
     }
 
     function isAdmin() {
+      let role = userRole();
       return isSignedIn() && (
-        userRole() == 'superadmin_provincial' ||
-        userRole().matches('^admin_.*')
+        role == 'superadmin_provincial' ||
+        role.matches('^admin_.*')
       );
     }
 

@@ -24,7 +24,7 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
   const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { location, loading: geoLoading } = useGeolocation();
+  const { location, error: geoError, loading: geoLoading, refresh: refreshLocation } = useGeolocation();
   const { user, signInAsGuest } = useAuthContext();
   const { addToast } = useToast();
 
@@ -62,7 +62,7 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
       return;
     }
     if (!location) {
-      addToast('Location is required. Please enable GPS.', 'error');
+      addToast(`Location is required. ${geoError || 'Please enable GPS and retry.'}`, 'error');
       return;
     }
 
@@ -171,6 +171,9 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
             location={location}
             municipality={municipality}
             isSubmitting={isSubmitting}
+            geoLoading={geoLoading}
+            geoError={geoError}
+            onRefreshLocation={refreshLocation}
           />
 
           <div className="flex gap-3 pt-2">

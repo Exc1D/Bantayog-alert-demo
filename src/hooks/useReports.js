@@ -26,7 +26,7 @@ import { FEED_PAGE_SIZE } from '../utils/constants';
 const ADMIN_ROLES = ['superadmin_provincial'];
 
 function isAdminRole(role = '') {
-  return ADMIN_ROLES.includes(role) || role.startsWith('admin_');
+  return ADMIN_ROLES.includes(role) || role.startsWith('admin_') || role.endsWith('_admin');
 }
 
 function safeFileName(name = '') {

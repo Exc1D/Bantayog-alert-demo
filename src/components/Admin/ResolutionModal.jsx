@@ -48,7 +48,7 @@ export default function ResolutionModal({ isOpen, onClose, report }) {
       addToast('Report marked as resolved!', 'success');
       handleClose();
     } catch (error) {
-      addToast('Failed to resolve report', 'error');
+      addToast(`Failed to resolve report: ${error?.message || error?.code || 'Unknown error'}`, 'error');
       console.error(error);
     } finally {
       setSubmitting(false);

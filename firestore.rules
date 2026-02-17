@@ -33,10 +33,19 @@ service cloud.firestore {
         && request.resource.data.verification.status == 'pending';
 
       // Admins can fully moderate reports.
-      // Report owners can only update their own engagement data.
+      // Any signed-in user can update only engagement data (upvotes).
       allow update: if isAdmin()
-        || (isReportOwner()
+        || (isSignedIn()
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['engagement'])
+          && request.resource.data.diff(resource.data).affectedKeys()
+              .intersection(['engagement']).size() > 0
+          // Prevent upvote count from going below zero
+          && request.resource.data.engagement.upvotes >= 0
+          // Ensure the user removing their upvote was actually in the upvotedBy list
+          && (
+            request.resource.data.engagement.upvotes >= resource.data.engagement.upvotes
+            || request.auth.uid in resource.data.engagement.upvotedBy
+          )
         );
 
       allow delete: if isAdmin();

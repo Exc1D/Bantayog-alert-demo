@@ -56,7 +56,7 @@ export function useReports(filters = {}) {
     }
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      const docs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
       setReports(docs);
       setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
       setHasMore(snapshot.docs.length >= FEED_PAGE_SIZE);
@@ -80,7 +80,7 @@ export function useReports(filters = {}) {
     );
 
     const snapshot = await getDocs(q);
-    const newDocs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    const newDocs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
 
     setReports(prev => [...prev, ...newDocs]);
     setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
@@ -96,11 +96,13 @@ export async function submitReport(reportData, evidenceFiles, user) {
   }
 
   // Detect municipality (sync, run first)
-  const { municipality, method: municipalityDetectionMethod } = resolveMunicipality(
+  const resolved = resolveMunicipality(
     reportData.location.lat,
     reportData.location.lng,
-    { barangay: reportData.location.barangay }
-  ) || reportData.location.municipality || 'Unknown';
+    reportData.location.municipality || 'Unknown'
+  );
+  const municipality = resolved.municipality;
+  const municipalityDetectionMethod = resolved.method;
 
   // Separate images and videos
   const imageFiles = evidenceFiles.filter(f => f.type.startsWith('image/'));

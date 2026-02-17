@@ -10,6 +10,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useToast } from '../Common/Toast';
 import { submitReport } from '../../hooks/useReports';
 import { resolveMunicipality } from '../../utils/geoFencing';
+import { MUNICIPALITY_COORDS } from '../../utils/constants';
 
 const STEP_TITLES = {
   1: 'REPORT INCIDENT',
@@ -23,14 +24,25 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
   const [evidenceFiles, setEvidenceFiles] = useState([]);
   const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [manualMunicipality, setManualMunicipality] = useState('');
 
-  const { location, error: geoError, loading: geoLoading, refresh: refreshLocation } = useGeolocation();
+  const { location, error: geoError, loading: geoLoading, refresh: refreshLocation, isInApp } = useGeolocation();
   const { user, signInAsGuest } = useAuthContext();
   const { addToast } = useToast();
 
   const municipality = location
     ? resolveMunicipality(location.lat, location.lng).municipality
-    : null;
+    : manualMunicipality || null;
+
+  // Build an effective location from GPS or manual selection
+  const effectiveLocation = location || (manualMunicipality && MUNICIPALITY_COORDS[manualMunicipality]
+    ? {
+        lat: MUNICIPALITY_COORDS[manualMunicipality].lat,
+        lng: MUNICIPALITY_COORDS[manualMunicipality].lng,
+        accuracy: null, // manual — no GPS accuracy
+      }
+    : null
+  );
 
   const handleTypeSelect = (type) => {
     setReportType(type);
@@ -61,8 +73,11 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
       addToast('What is happening? (at least 10 characters)', 'warning');
       return;
     }
-    if (!location) {
-      addToast(`Location is required. ${geoError || 'Please enable GPS and retry.'}`, 'error');
+    if (!effectiveLocation) {
+      addToast(
+        `Location is required. ${geoError || 'Please enable GPS or select your municipality manually.'}`,
+        'error'
+      );
       return;
     }
 
@@ -73,12 +88,12 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
 
       const reportData = {
         location: {
-          lat: location.lat,
-          lng: location.lng,
+          lat: effectiveLocation.lat,
+          lng: effectiveLocation.lng,
           municipality: municipality || 'Unknown',
           barangay: formData.barangay || '',
           street: formData.street || '',
-          accuracy: location.accuracy
+          accuracy: effectiveLocation.accuracy ?? 0
         },
         disaster: {
           type: 'pending',
@@ -121,6 +136,7 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
     setReportType(null);
     setEvidenceFiles([]);
     setFormData({});
+    setManualMunicipality('');
     onClose();
   };
 
@@ -173,6 +189,9 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
             isSubmitting={isSubmitting}
             geoLoading={geoLoading}
             geoError={geoError}
+            isInApp={isInApp}
+            manualMunicipality={manualMunicipality}
+            onManualMunicipalityChange={setManualMunicipality}
             onRefreshLocation={refreshLocation}
           />
 
@@ -189,7 +208,7 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
               variant="primary"
               onClick={handleSubmit}
               loading={isSubmitting}
-              disabled={isSubmitting || !formData.severity || !formData.description}
+              disabled={isSubmitting || !formData.severity || !formData.description || !effectiveLocation}
               className="flex-1"
             >
               Submit Report

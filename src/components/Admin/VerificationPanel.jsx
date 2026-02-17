@@ -40,7 +40,7 @@ export default function VerificationPanel({ report, onDone }) {
       addToast('Report verified and classified successfully', 'success');
       onDone();
     } catch (error) {
-      addToast('Failed to verify report', 'error');
+      addToast(`Failed to verify report: ${error?.message || error?.code || 'Unknown error'}`, 'error');
     } finally {
       setProcessing(false);
     }
@@ -57,7 +57,7 @@ export default function VerificationPanel({ report, onDone }) {
       addToast('Report rejected', 'info');
       onDone();
     } catch (error) {
-      addToast('Failed to reject report', 'error');
+      addToast(`Failed to reject report: ${error?.message || error?.code || 'Unknown error'}`, 'error');
     } finally {
       setProcessing(false);
     }
@@ -70,7 +70,7 @@ export default function VerificationPanel({ report, onDone }) {
       addToast('Report deleted permanently', 'success');
       onDone();
     } catch (error) {
-      addToast('Failed to delete report', 'error');
+      addToast(`Failed to delete report: ${error?.message || error?.code || 'Unknown error'}`, 'error');
     } finally {
       setProcessing(false);
       setShowDeleteConfirm(false);

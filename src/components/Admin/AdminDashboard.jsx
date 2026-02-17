@@ -73,7 +73,7 @@ export default function AdminDashboard() {
     );
 
     const unsubPending = onSnapshot(pendingQuery, (snapshot) => {
-      let docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      let docs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
       docs = sortByTimestamp(docs);
       if (!isSuperAdmin && userProfile?.municipality) {
         setPendingReports(docs.filter(d => d.location?.municipality === userProfile.municipality));
@@ -87,7 +87,7 @@ export default function AdminDashboard() {
     });
 
     const unsubVerified = onSnapshot(verifiedQuery, (snapshot) => {
-      let docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      let docs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
       docs = sortByTimestamp(docs);
       if (!isSuperAdmin && userProfile?.municipality) {
         setVerifiedReports(docs.filter(d => d.location?.municipality === userProfile.municipality));
@@ -100,7 +100,7 @@ export default function AdminDashboard() {
 
     const unsubResolved = onSnapshot(resolvedQuery, (snapshot) => {
       const now = Date.now();
-      let docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      let docs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
 
       docs = docs.filter((doc) => {
         const resolvedAtMs = getTimestampValue(doc.verification?.resolution?.resolvedAt);
@@ -131,7 +131,7 @@ export default function AdminDashboard() {
       await deleteReport(reportId, userProfile?.role || '');
       addToast('Report deleted permanently', 'success');
     } catch (error) {
-      addToast('Failed to delete report', 'error');
+      addToast(`Failed to delete report: ${error?.message || error?.code || 'Unknown error'}`, 'error');
     } finally {
       setDeleting(false);
       setDeleteConfirmId(null);

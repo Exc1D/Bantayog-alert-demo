@@ -1,9 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 
+function isInAppBrowser() {
+  const ua = navigator.userAgent || '';
+  return /FBAN|FBAV|Instagram|Line\/|Twitter|Snapchat|MicroMessenger|WebView/i.test(ua);
+}
+
 export function useGeolocation() {
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isInApp, setIsInApp] = useState(false);
 
   const getPosition = useCallback((options = {}) => new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
@@ -33,11 +39,21 @@ export function useGeolocation() {
         const position = await getPosition(attempts[i]);
         setLocation(toLocation(position));
         setError(null);
+        setIsInApp(false);
         setLoading(false);
         return;
       } catch (err) {
         if (i === attempts.length - 1) {
-          setError(err?.message || 'Unable to get your location.');
+          const inApp = isInAppBrowser();
+          setIsInApp(inApp);
+          if (inApp) {
+            setError(
+              'Location services are blocked in this in-app browser. ' +
+              'Tap the \u22EF menu and select "Open in browser", or select your municipality manually below.'
+            );
+          } else {
+            setError(err?.message || 'Unable to get your location.');
+          }
           setLoading(false);
         }
       }
@@ -52,5 +68,5 @@ export function useGeolocation() {
     requestLocation(true);
   }, [requestLocation]);
 
-  return { location, error, loading, refresh };
+  return { location, error, loading, refresh, isInApp };
 }

@@ -53,6 +53,17 @@ export function isInCamarinesNorte(lat, lng) {
   return detectMunicipality(lat, lng) !== null;
 }
 
+function hasValidCoordinates(lat, lng) {
+  return (
+    typeof lat === 'number' &&
+    typeof lng === 'number' &&
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    lat >= -90 && lat <= 90 &&
+    lng >= -180 && lng <= 180
+  );
+}
+
 export function getNearestMunicipality(lat, lng) {
   if (!hasValidCoordinates(lat, lng)) return null;
 

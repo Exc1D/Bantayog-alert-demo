@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import Header from './components/Layout/Header';
 import TabNavigation from './components/Layout/TabNavigation';
 import Footer from './components/Layout/Footer';
@@ -17,13 +17,47 @@ const WeatherTab = lazy(() => import('./pages/WeatherTab'));
 const ProfileTab = lazy(() => import('./pages/ProfileTab'));
 const ReportModal = lazy(() => import('./components/Reports/ReportModal'));
 
+const VALID_TABS = ['map', 'feed', 'weather', 'profile'];
+
+function getTabFromHash() {
+  const hash = window.location.hash.replace('#', '');
+  return VALID_TABS.includes(hash) ? hash : 'map';
+}
+
 function AppContent() {
-  const [activeTab, setActiveTab] = useState('map');
+  const [activeTab, setActiveTab] = useState(getTabFromHash);
   const [showReportModal, setShowReportModal] = useState(false);
   const [showSignUpPrompt, setShowSignUpPrompt] = useState(false);
 
+  // Sync tab changes to URL hash + browser history
+  const changeTab = useCallback((tab) => {
+    if (!VALID_TABS.includes(tab)) tab = 'map';
+    setActiveTab(tab);
+    const newHash = `#${tab}`;
+    // Only push a new history entry if the hash actually changed
+    if (window.location.hash !== newHash) {
+      window.history.pushState(null, '', newHash);
+    }
+  }, []);
+
+  // Listen for browser back/forward navigation (popstate)
+  useEffect(() => {
+    const handlePopState = () => {
+      setActiveTab(getTabFromHash());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Set initial hash on mount if not already present
+  useEffect(() => {
+    if (!window.location.hash) {
+      window.history.replaceState(null, '', '#map');
+    }
+  }, []);
+
   const handleViewMap = () => {
-    setActiveTab('map');
+    changeTab('map');
   };
 
   const openSignUpPrompt = () => {
@@ -32,11 +66,11 @@ function AppContent() {
 
   const handleSignUpNow = () => {
     setShowSignUpPrompt(false);
-    setActiveTab('profile');
+    changeTab('profile');
   };
 
   const handleOpenProfileTab = () => {
-    setActiveTab('profile');
+    changeTab('profile');
   };
 
   const handleOpenReportModal = () => setShowReportModal(true);
@@ -68,7 +102,7 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-bg flex flex-col">
       <Header onProfileClick={handleOpenProfileTab} />
-      <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <TabNavigation activeTab={activeTab} onTabChange={changeTab} />
 
       <main className="flex-1">
         <Suspense

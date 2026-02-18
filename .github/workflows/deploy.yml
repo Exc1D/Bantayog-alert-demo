@@ -28,15 +28,28 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Check Firebase token
+        id: check-token
+        run: |
+          if [ -z "${{ secrets.FIREBASE_TOKEN }}" ]; then
+            echo "has_token=false" >> $GITHUB_OUTPUT
+            echo "⚠️ FIREBASE_TOKEN not configured. Skipping deployment."
+          else
+            echo "has_token=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install Firebase CLI
+        if: steps.check-token.outputs.has_token == 'true'
         run: npm install -g firebase-tools@13
 
       - name: Deploy to Firebase Hosting
+        if: steps.check-token.outputs.has_token == 'true'
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         run: firebase deploy --only hosting --token "$FIREBASE_TOKEN"
 
       - name: Get Deployment URL
+        if: steps.check-token.outputs.has_token == 'true'
         id: deploy-url
         run: |
           PROJECT_ID=$(cat .firebaserc | jq -r '.projects.default')
@@ -44,7 +57,7 @@ jobs:
           echo "alt_url=https://${PROJECT_ID}.firebaseapp.com" >> $GITHUB_OUTPUT
 
       - name: Comment on PR
-        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        if: steps.check-token.outputs.has_token == 'true' && github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
         uses: actions/github-script@v7
         with:
           script: |
@@ -54,7 +67,7 @@ jobs:
               state: 'open',
               head: `${context.repo.owner}:${context.ref.replace('refs/heads/', '')}`
             });
-            
+
             if (prs.length > 0) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,

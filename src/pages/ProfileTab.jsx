@@ -86,29 +86,37 @@ function AuthForm() {
     try {
       await signInAsGuest();
       addToast('Signed in as guest', 'info');
-    } catch (error) {
+    } catch {
       addToast('Guest sign-in failed', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const inputClass = 'w-full border border-stone-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent bg-white';
+  const inputClass =
+    'w-full border border-stone-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent bg-white';
 
   return (
     <div className="max-w-md mx-auto">
       <div className="bg-white rounded-xl p-5 shadow-card border border-stone-100">
         <div className="text-center mb-5">
           <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-3">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e63946" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#e63946"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" />
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
           </div>
-          <h2 className="text-lg font-bold">
-            {isLogin ? 'Sign In' : 'Create Account'}
-          </h2>
+          <h2 className="text-lg font-bold">{isLogin ? 'Sign In' : 'Create Account'}</h2>
           <p className="text-xs text-textLight mt-1">
             {isLogin ? 'Sign in to submit hazard reports' : 'Join Bantayog Alert'}
           </p>
@@ -118,7 +126,9 @@ function AuthForm() {
           {!isLogin && (
             <>
               <div>
-                <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">Full Name</label>
+                <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   value={name}
@@ -129,7 +139,9 @@ function AuthForm() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">Municipality</label>
+                <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">
+                  Municipality
+                </label>
                 <select
                   value={municipality}
                   onChange={(e) => setMunicipality(e.target.value)}
@@ -137,7 +149,9 @@ function AuthForm() {
                 >
                   <option value="">Select Municipality</option>
                   {MUNICIPALITIES.map((m) => (
-                    <option key={m} value={m}>{m}</option>
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -145,7 +159,9 @@ function AuthForm() {
           )}
 
           <div>
-            <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">Email</label>
+            <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">
+              Email
+            </label>
             <input
               type="email"
               value={email}
@@ -157,7 +173,9 @@ function AuthForm() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">Password</label>
+            <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">
+              Password
+            </label>
             <input
               type={showPassword ? 'text' : 'password'}
               value={password}
@@ -171,7 +189,9 @@ function AuthForm() {
 
           {!isLogin && (
             <div>
-              <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">Confirm Password</label>
+              <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">
+                Confirm Password
+              </label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={confirmPassword}
@@ -194,12 +214,7 @@ function AuthForm() {
             Show password
           </label>
 
-          <Button
-            type="submit"
-            loading={loading}
-            className="w-full"
-            size="lg"
-          >
+          <Button type="submit" loading={loading} className="w-full" size="lg">
             {isLogin ? 'Sign In' : 'Create Account'}
           </Button>
         </form>
@@ -207,7 +222,8 @@ function AuthForm() {
         {isLogin && showResetPrompt && (
           <div className="mt-3 p-3 rounded-lg border border-amber-200 bg-amber-50">
             <p className="text-xs text-amber-800 mb-2">
-              Too many unsuccessful login attempts were detected. You can request a password reset link.
+              Too many unsuccessful login attempts were detected. You can request a password reset
+              link.
             </p>
             <Button
               variant="secondary"
@@ -230,12 +246,7 @@ function AuthForm() {
         </div>
 
         <div className="mt-3 pt-3 border-t border-stone-100">
-          <Button
-            variant="ghost"
-            onClick={handleGuest}
-            loading={loading}
-            className="w-full"
-          >
+          <Button variant="ghost" onClick={handleGuest} loading={loading} className="w-full">
             Continue as Guest
           </Button>
         </div>
@@ -245,7 +256,8 @@ function AuthForm() {
 }
 
 function UserProfile() {
-  const { user, userProfile, signOut, isAdmin, updateProfilePicture, removeAccount } = useAuthContext();
+  const { user, userProfile, signOut, isAdmin, updateProfilePicture, removeAccount } =
+    useAuthContext();
   const { addToast } = useToast();
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
@@ -255,7 +267,7 @@ function UserProfile() {
     try {
       await signOut();
       addToast('Signed out', 'info');
-    } catch (error) {
+    } catch {
       addToast('Sign out failed', 'error');
     }
   };
@@ -288,7 +300,9 @@ function UserProfile() {
   };
 
   const handleDeleteAccount = async () => {
-    const confirmed = window.confirm('Delete your account permanently? This action cannot be undone.');
+    const confirmed = window.confirm(
+      'Delete your account permanently? This action cannot be undone.'
+    );
     if (!confirmed) {
       return;
     }
@@ -369,25 +383,31 @@ function UserProfile() {
           <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-stone-100">
             <div className="text-center">
               <p className="text-xl font-bold text-accent">{userProfile.stats.reportsSubmitted}</p>
-              <p className="text-[10px] text-textLight uppercase tracking-wider font-semibold">Reports</p>
+              <p className="text-[10px] text-textLight uppercase tracking-wider font-semibold">
+                Reports
+              </p>
             </div>
             <div className="text-center">
-              <p className="text-xl font-bold text-emerald-600">{userProfile.stats.reportsVerified}</p>
-              <p className="text-[10px] text-textLight uppercase tracking-wider font-semibold">Verified</p>
+              <p className="text-xl font-bold text-emerald-600">
+                {userProfile.stats.reportsVerified}
+              </p>
+              <p className="text-[10px] text-textLight uppercase tracking-wider font-semibold">
+                Verified
+              </p>
             </div>
             <div className="text-center">
-              <p className="text-xl font-bold text-amber-500">{userProfile.stats.upvotesReceived}</p>
-              <p className="text-[10px] text-textLight uppercase tracking-wider font-semibold">Upvotes</p>
+              <p className="text-xl font-bold text-amber-500">
+                {userProfile.stats.upvotesReceived}
+              </p>
+              <p className="text-[10px] text-textLight uppercase tracking-wider font-semibold">
+                Upvotes
+              </p>
             </div>
           </div>
         )}
 
         <div className="mt-4 space-y-2">
-          <Button
-            variant="secondary"
-            onClick={handleSignOut}
-            className="w-full"
-          >
+          <Button variant="secondary" onClick={handleSignOut} className="w-full">
             Sign Out
           </Button>
 

@@ -7,7 +7,6 @@ import { formatTimeAgo } from '../../utils/timeUtils';
 import { deleteReport } from '../../hooks/useReports';
 import { useToast } from '../Common/Toast';
 import Modal from '../Common/Modal';
-import Button from '../Common/Button';
 import VerificationPanel from './VerificationPanel';
 import ResolutionModal from './ResolutionModal';
 import LoadingSpinner from '../Common/LoadingSpinner';
@@ -17,7 +16,7 @@ const FEED_RESOLVED_RETENTION_MS = 24 * 60 * 60 * 1000;
 const SEV_STYLES = {
   critical: 'bg-red-600 text-white',
   moderate: 'bg-amber-500 text-white',
-  minor: 'bg-emerald-600 text-white'
+  minor: 'bg-emerald-600 text-white',
 };
 
 // Sort client-side by timestamp descending (avoids composite index requirement)
@@ -72,51 +71,69 @@ export default function AdminDashboard() {
       where('verification.status', '==', 'resolved')
     );
 
-    const unsubPending = onSnapshot(pendingQuery, (snapshot) => {
-      let docs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
-      docs = sortByTimestamp(docs);
-      if (!isSuperAdmin && userProfile?.municipality) {
-        setPendingReports(docs.filter(d => d.location?.municipality === userProfile.municipality));
-      } else {
-        setPendingReports(docs);
+    const unsubPending = onSnapshot(
+      pendingQuery,
+      (snapshot) => {
+        let docs = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
+        docs = sortByTimestamp(docs);
+        if (!isSuperAdmin && userProfile?.municipality) {
+          setPendingReports(
+            docs.filter((d) => d.location?.municipality === userProfile.municipality)
+          );
+        } else {
+          setPendingReports(docs);
+        }
+        setLoading(false);
+      },
+      (err) => {
+        console.error('Pending reports query failed:', err);
+        setLoading(false);
       }
-      setLoading(false);
-    }, (err) => {
-      console.error('Pending reports query failed:', err);
-      setLoading(false);
-    });
+    );
 
-    const unsubVerified = onSnapshot(verifiedQuery, (snapshot) => {
-      let docs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
-      docs = sortByTimestamp(docs);
-      if (!isSuperAdmin && userProfile?.municipality) {
-        setVerifiedReports(docs.filter(d => d.location?.municipality === userProfile.municipality));
-      } else {
-        setVerifiedReports(docs);
+    const unsubVerified = onSnapshot(
+      verifiedQuery,
+      (snapshot) => {
+        let docs = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
+        docs = sortByTimestamp(docs);
+        if (!isSuperAdmin && userProfile?.municipality) {
+          setVerifiedReports(
+            docs.filter((d) => d.location?.municipality === userProfile.municipality)
+          );
+        } else {
+          setVerifiedReports(docs);
+        }
+      },
+      (err) => {
+        console.error('Verified reports query failed:', err);
       }
-    }, (err) => {
-      console.error('Verified reports query failed:', err);
-    });
+    );
 
-    const unsubResolved = onSnapshot(resolvedQuery, (snapshot) => {
-      const now = Date.now();
-      let docs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+    const unsubResolved = onSnapshot(
+      resolvedQuery,
+      (snapshot) => {
+        const now = Date.now();
+        let docs = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
 
-      docs = docs.filter((doc) => {
-        const resolvedAtMs = getTimestampValue(doc.verification?.resolution?.resolvedAt);
-        return resolvedAtMs > 0 && (now - resolvedAtMs) > FEED_RESOLVED_RETENTION_MS;
-      });
+        docs = docs.filter((doc) => {
+          const resolvedAtMs = getTimestampValue(doc.verification?.resolution?.resolvedAt);
+          return resolvedAtMs > 0 && now - resolvedAtMs > FEED_RESOLVED_RETENTION_MS;
+        });
 
-      docs = sortByTimestamp(docs);
+        docs = sortByTimestamp(docs);
 
-      if (!isSuperAdmin && userProfile?.municipality) {
-        setArchivedReports(docs.filter(d => d.location?.municipality === userProfile.municipality));
-      } else {
-        setArchivedReports(docs);
+        if (!isSuperAdmin && userProfile?.municipality) {
+          setArchivedReports(
+            docs.filter((d) => d.location?.municipality === userProfile.municipality)
+          );
+        } else {
+          setArchivedReports(docs);
+        }
+      },
+      (err) => {
+        console.error('Archived reports query failed:', err);
       }
-    }, (err) => {
-      console.error('Archived reports query failed:', err);
-    });
+    );
 
     return () => {
       unsubPending();
@@ -131,7 +148,10 @@ export default function AdminDashboard() {
       await deleteReport(reportId, userProfile?.role || '');
       addToast('Report deleted permanently', 'success');
     } catch (error) {
-      addToast(`Failed to delete report: ${error?.message || error?.code || 'Unknown error'}`, 'error');
+      addToast(
+        `Failed to delete report: ${error?.message || error?.code || 'Unknown error'}`,
+        'error'
+      );
     } finally {
       setDeleting(false);
       setDeleteConfirmId(null);
@@ -142,13 +162,24 @@ export default function AdminDashboard() {
     return (
       <div className="text-center py-8">
         <div className="w-12 h-12 mx-auto mb-3 bg-stone-100 rounded-full flex items-center justify-center">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a8a29e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#a8a29e"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
             <path d="M7 11V7a5 5 0 0110 0v4" />
           </svg>
         </div>
         <h3 className="text-sm font-bold">Admin Access Required</h3>
-        <p className="text-xs text-textLight mt-1">This section is only available to DRRMO administrators.</p>
+        <p className="text-xs text-textLight mt-1">
+          This section is only available to DRRMO administrators.
+        </p>
       </div>
     );
   }
@@ -157,18 +188,28 @@ export default function AdminDashboard() {
     return <LoadingSpinner text="Loading dashboard..." />;
   }
 
-  const displayReports = activeTab === 'pending'
-    ? pendingReports
-    : activeTab === 'verified'
-      ? verifiedReports
-      : archivedReports;
+  const displayReports =
+    activeTab === 'pending'
+      ? pendingReports
+      : activeTab === 'verified'
+        ? verifiedReports
+        : archivedReports;
 
   return (
     <div>
       {/* Admin Header */}
       <div className="bg-primary rounded-xl p-4 mb-3 text-white">
         <div className="flex items-center gap-2">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2ec4b6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#2ec4b6"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
           <h2 className="text-sm font-bold tracking-wide uppercase">
@@ -178,9 +219,13 @@ export default function AdminDashboard() {
         <div className="flex items-center gap-3 mt-2 ml-[26px]">
           <span className="text-xs text-amber-400 font-bold">{pendingReports.length} pending</span>
           <span className="text-white/20">&bull;</span>
-          <span className="text-xs text-blue-400 font-bold">{verifiedReports.length} awaiting resolution</span>
+          <span className="text-xs text-blue-400 font-bold">
+            {verifiedReports.length} awaiting resolution
+          </span>
           <span className="text-white/20">&bull;</span>
-          <span className="text-xs text-emerald-300 font-bold">{archivedReports.length} archived</span>
+          <span className="text-xs text-emerald-300 font-bold">
+            {archivedReports.length} archived
+          </span>
         </div>
       </div>
 
@@ -222,7 +267,16 @@ export default function AdminDashboard() {
       {displayReports.length === 0 ? (
         <div className="bg-white rounded-xl p-6 text-center shadow-card border border-stone-100">
           <div className="w-10 h-10 mx-auto mb-2 bg-emerald-50 rounded-full flex items-center justify-center">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#16a34a"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
@@ -236,7 +290,7 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="space-y-2">
-          {displayReports.map(report => {
+          {displayReports.map((report) => {
             const disasterType = getDisasterType(report.disaster?.type);
             const sevStyle = SEV_STYLES[report.disaster?.severity] || SEV_STYLES.minor;
 
@@ -259,14 +313,18 @@ export default function AdminDashboard() {
                   >
                     <span className="text-lg">{disasterType.icon}</span>
                     <div className="min-w-0">
-                      <p className="font-bold text-xs uppercase tracking-wide">{disasterType.label}</p>
+                      <p className="font-bold text-xs uppercase tracking-wide">
+                        {disasterType.label}
+                      </p>
                       <p className="text-[10px] text-textLight">
                         {report.location?.municipality} &bull; {formatTimeAgo(report.timestamp)}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className={`${sevStyle} px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide`}>
+                    <span
+                      className={`${sevStyle} px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide`}
+                    >
                       {report.disaster?.severity}
                     </span>
                     {/* Delete button */}
@@ -278,7 +336,16 @@ export default function AdminDashboard() {
                           className="bg-red-600 text-white rounded-lg p-1.5 hover:bg-red-700 transition-colors disabled:opacity-40"
                           title="Confirm delete"
                         >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
                             <polyline points="20 6 9 17 4 12" />
                           </svg>
                         </button>
@@ -287,7 +354,16 @@ export default function AdminDashboard() {
                           className="bg-stone-200 text-stone-600 rounded-lg p-1.5 hover:bg-stone-300 transition-colors"
                           title="Cancel"
                         >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
                             <line x1="18" y1="6" x2="6" y2="18" />
                             <line x1="6" y1="6" x2="18" y2="18" />
                           </svg>
@@ -302,7 +378,16 @@ export default function AdminDashboard() {
                         className="text-stone-300 hover:text-red-500 transition-colors p-1"
                         title="Delete report"
                       >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <polyline points="3 6 5 6 21 6" />
                           <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
                         </svg>
@@ -332,13 +417,19 @@ export default function AdminDashboard() {
       {/* Verification Modal */}
       <Modal
         isOpen={showVerifyModal}
-        onClose={() => { setShowVerifyModal(false); setSelectedReport(null); }}
+        onClose={() => {
+          setShowVerifyModal(false);
+          setSelectedReport(null);
+        }}
         title="VERIFY REPORT"
       >
         {selectedReport && (
           <VerificationPanel
             report={selectedReport}
-            onDone={() => { setShowVerifyModal(false); setSelectedReport(null); }}
+            onDone={() => {
+              setShowVerifyModal(false);
+              setSelectedReport(null);
+            }}
           />
         )}
       </Modal>
@@ -346,7 +437,10 @@ export default function AdminDashboard() {
       {/* Resolution Modal */}
       <ResolutionModal
         isOpen={showResolveModal}
-        onClose={() => { setShowResolveModal(false); setSelectedReport(null); }}
+        onClose={() => {
+          setShowResolveModal(false);
+          setSelectedReport(null);
+        }}
         report={selectedReport}
       />
     </div>

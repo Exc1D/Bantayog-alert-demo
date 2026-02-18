@@ -6,14 +6,14 @@ const mockGeolocation = {
   getCurrentPosition: vi.fn(),
 };
 
-const originalNavigator = global.navigator;
+const originalNavigator = globalThis.navigator;
 
 beforeEach(() => {
-  Object.defineProperty(global, 'navigator', {
+  Object.defineProperty(globalThis, 'navigator', {
     value: {
       ...originalNavigator,
       geolocation: mockGeolocation,
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0'
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0',
     },
     writable: true,
   });
@@ -39,8 +39,8 @@ describe('useGeolocation', () => {
       coords: {
         latitude: 18.1978,
         longitude: 120.5939,
-        accuracy: 10
-      }
+        accuracy: 10,
+      },
     };
 
     mockGeolocation.getCurrentPosition.mockImplementation((success) => {
@@ -50,13 +50,13 @@ describe('useGeolocation', () => {
     const { result } = renderHook(() => useGeolocation());
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(result.current.location).toEqual({
       lat: 18.1978,
       lng: 120.5939,
-      accuracy: 10
+      accuracy: 10,
     });
     expect(result.current.error).toBeNull();
     expect(result.current.loading).toBe(false);
@@ -65,7 +65,7 @@ describe('useGeolocation', () => {
   it('sets error on geolocation failure', async () => {
     const mockError = {
       code: 1,
-      message: 'User denied Geolocation'
+      message: 'User denied Geolocation',
     };
 
     mockGeolocation.getCurrentPosition.mockImplementation((success, error) => {
@@ -75,7 +75,7 @@ describe('useGeolocation', () => {
     const { result } = renderHook(() => useGeolocation());
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(result.current.location).toBeNull();
@@ -88,8 +88,8 @@ describe('useGeolocation', () => {
       coords: {
         latitude: 18.1978,
         longitude: 120.5939,
-        accuracy: 10
-      }
+        accuracy: 10,
+      },
     };
 
     mockGeolocation.getCurrentPosition.mockImplementation((success) => {
@@ -99,7 +99,7 @@ describe('useGeolocation', () => {
     const { result } = renderHook(() => useGeolocation());
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(result.current.location).not.toBeNull();
@@ -108,10 +108,10 @@ describe('useGeolocation', () => {
     mockGeolocation.getCurrentPosition.mockImplementation((success) => {
       success({
         coords: {
-          latitude: 18.2000,
-          longitude: 120.6000,
-          accuracy: 5
-        }
+          latitude: 18.2,
+          longitude: 120.6,
+          accuracy: 5,
+        },
       });
     });
 
@@ -120,7 +120,7 @@ describe('useGeolocation', () => {
     });
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(mockGeolocation.getCurrentPosition).toHaveBeenCalled();

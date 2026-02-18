@@ -14,7 +14,7 @@ import {
   doc,
   increment,
   arrayUnion,
-  arrayRemove
+  arrayRemove,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage, serverTimestamp } from '../utils/firebaseConfig';
@@ -45,27 +45,33 @@ export function useReports(filters = {}) {
   const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     let q = query(collection(db, 'reports'), orderBy('timestamp', 'desc'), limit(FEED_PAGE_SIZE));
 
     if (filters.municipality && filters.municipality !== 'all') {
-      q = query(collection(db, 'reports'),
+      q = query(
+        collection(db, 'reports'),
         where('location.municipality', '==', filters.municipality),
         orderBy('timestamp', 'desc'),
         limit(FEED_PAGE_SIZE)
       );
     }
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const docs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
-      setReports(docs);
-      setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
-      setHasMore(snapshot.docs.length >= FEED_PAGE_SIZE);
-      setLoading(false);
-    }, (err) => {
-      setError(err.message);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const docs = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
+        setReports(docs);
+        setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
+        setHasMore(snapshot.docs.length >= FEED_PAGE_SIZE);
+        setLoading(false);
+      },
+      (err) => {
+        setError(err.message);
+        setLoading(false);
+      }
+    );
 
     return () => unsubscribe();
   }, [filters.municipality]);
@@ -81,9 +87,9 @@ export function useReports(filters = {}) {
     );
 
     const snapshot = await getDocs(q);
-    const newDocs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+    const newDocs = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
 
-    setReports(prev => [...prev, ...newDocs]);
+    setReports((prev) => [...prev, ...newDocs]);
     setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
     setHasMore(snapshot.docs.length >= FEED_PAGE_SIZE);
   }, [lastDoc, hasMore]);
@@ -118,8 +124,8 @@ export async function submitReport(reportData, evidenceFiles, user) {
   const municipalityDetectionMethod = resolved.method;
 
   // Separate images and videos
-  const imageFiles = evidenceFiles.filter(f => f.type.startsWith('image/'));
-  const videoFiles = evidenceFiles.filter(f => f.type.startsWith('video/'));
+  const imageFiles = evidenceFiles.filter((f) => f.type.startsWith('image/'));
+  const videoFiles = evidenceFiles.filter((f) => f.type.startsWith('video/'));
 
   // Start all three groups in parallel; each file fails independently
   const imageResultsPromise = Promise.all(
@@ -127,7 +133,7 @@ export async function submitReport(reportData, evidenceFiles, user) {
       try {
         const [compressed, thumbnail] = await Promise.all([
           compressImage(photo),
-          createThumbnail(photo)
+          createThumbnail(photo),
         ]);
 
         const ts = Date.now() + index;
@@ -135,14 +141,11 @@ export async function submitReport(reportData, evidenceFiles, user) {
         const photoRef = ref(storage, `reports/${ts}_${safeName}`);
         const thumbRef = ref(storage, `reports/thumbs/${ts}_${safeName}`);
 
-        await Promise.all([
-          uploadBytes(photoRef, compressed),
-          uploadBytes(thumbRef, thumbnail)
-        ]);
+        await Promise.all([uploadBytes(photoRef, compressed), uploadBytes(thumbRef, thumbnail)]);
 
         const [photoUrl, thumbUrl] = await Promise.all([
           getDownloadURL(photoRef),
-          getDownloadURL(thumbRef)
+          getDownloadURL(thumbRef),
         ]);
 
         return { photoUrl, thumbUrl };
@@ -185,11 +188,11 @@ export async function submitReport(reportData, evidenceFiles, user) {
 
   // Filter out failed uploads and surface a summary to the caller
   const successfulImages = imageResults.filter(Boolean);
-  const photoUrls = successfulImages.map(r => r.photoUrl);
-  const thumbnailUrls = successfulImages.map(r => r.thumbUrl);
+  const photoUrls = successfulImages.map((r) => r.photoUrl);
+  const thumbnailUrls = successfulImages.map((r) => r.thumbUrl);
   const successfulVideos = videoUrls.filter(Boolean);
-  const skippedFiles = (imageFiles.length - successfulImages.length) +
-                       (videoFiles.length - successfulVideos.length);
+  const skippedFiles =
+    imageFiles.length - successfulImages.length + (videoFiles.length - successfulVideos.length);
 
   // Build report document
   const report = {
@@ -202,24 +205,24 @@ export async function submitReport(reportData, evidenceFiles, user) {
       barangay: reportData.location.barangay || '',
       street: reportData.location.street || '',
       accuracy: reportData.location.accuracy || 0,
-      municipalityDetectionMethod
+      municipalityDetectionMethod,
     },
     disaster: {
       type: reportData.disaster.type,
       severity: reportData.disaster.severity,
       description: reportData.disaster.description,
-      tags: reportData.disaster.tags || []
+      tags: reportData.disaster.tags || [],
     },
     media: {
       photos: photoUrls,
       videos: successfulVideos,
-      thumbnails: thumbnailUrls
+      thumbnails: thumbnailUrls,
     },
     reporter: {
       userId: user.uid,
       name: user.displayName || 'Anonymous',
       isAnonymous: user.isAnonymous ?? false,
-      isVerifiedUser: false
+      isVerifiedUser: false,
     },
     verification: {
       status: 'pending',
@@ -233,17 +236,17 @@ export async function submitReport(reportData, evidenceFiles, user) {
         evidencePhotos: [],
         resolutionNotes: '',
         actionsTaken: '',
-        resourcesUsed: ''
-      }
+        resourcesUsed: '',
+      },
     },
     engagement: {
       views: 0,
       upvotes: 0,
       upvotedBy: [],
       commentCount: 0,
-      shares: 0
+      shares: 0,
     },
-    weatherContext
+    weatherContext,
   };
 
   const docRef = await addDoc(collection(db, 'reports'), report);
@@ -256,7 +259,7 @@ export async function upvoteReport(reportId, userId) {
   const reportRef = doc(db, 'reports', reportId);
   await updateDoc(reportRef, {
     'engagement.upvotes': increment(1),
-    'engagement.upvotedBy': arrayUnion(userId)
+    'engagement.upvotedBy': arrayUnion(userId),
   });
 }
 
@@ -266,7 +269,7 @@ export async function removeUpvote(reportId, userId) {
   const reportRef = doc(db, 'reports', reportId);
   await updateDoc(reportRef, {
     'engagement.upvotes': increment(-1),
-    'engagement.upvotedBy': arrayRemove(userId)
+    'engagement.upvotedBy': arrayRemove(userId),
   });
 }
 
@@ -281,7 +284,7 @@ export async function verifyReport(reportId, adminId, adminRole, notes = '', dis
     'verification.verifiedBy': adminId,
     'verification.verifiedAt': serverTimestamp(),
     'verification.verifierRole': adminRole,
-    'verification.notes': notes
+    'verification.notes': notes,
   };
 
   if (disasterType) {
@@ -302,11 +305,19 @@ export async function rejectReport(reportId, adminId, adminRole, notes = '') {
     'verification.verifiedBy': adminId,
     'verification.verifiedAt': serverTimestamp(),
     'verification.verifierRole': adminRole,
-    'verification.notes': notes
+    'verification.notes': notes,
   });
 }
 
-export async function resolveReport(reportId, adminId, evidencePhotos, actionsTaken, resolutionNotes = '', resourcesUsed = '', adminRole = '') {
+export async function resolveReport(
+  reportId,
+  adminId,
+  evidencePhotos,
+  actionsTaken,
+  resolutionNotes = '',
+  resourcesUsed = '',
+  adminRole = ''
+) {
   if (!adminId || !isAdminRole(adminRole)) {
     throw new Error('Admin privileges required to resolve reports.');
   }
@@ -330,7 +341,7 @@ export async function resolveReport(reportId, adminId, evidencePhotos, actionsTa
     'verification.resolution.evidencePhotos': evidenceUrls,
     'verification.resolution.actionsTaken': actionsTaken,
     'verification.resolution.resolutionNotes': resolutionNotes,
-    'verification.resolution.resourcesUsed': resourcesUsed
+    'verification.resolution.resourcesUsed': resourcesUsed,
   });
 }
 

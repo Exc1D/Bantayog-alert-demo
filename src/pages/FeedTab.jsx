@@ -14,8 +14,12 @@ function getFirestoreMs(ts) {
   return null;
 }
 
-// For resolved reports use resolvedAt so resolution surfaces as fresh activity;
-// fall back to the original report timestamp for everything else.
+function isResolvedAndExpired(report, now) {
+  if (report.verification?.status !== 'resolved') return false;
+  const resolvedMs = getFirestoreMs(report.verification?.resolution?.resolvedAt);
+  return resolvedMs != null && now - resolvedMs > TWENTY_FOUR_HOURS_MS;
+}
+
 function getEffectiveTimestamp(report) {
   if (report.verification?.status === 'resolved') {
     const resolvedMs = getFirestoreMs(report.verification?.resolution?.resolvedAt);
@@ -24,26 +28,16 @@ function getEffectiveTimestamp(report) {
   return getFirestoreMs(report.timestamp) ?? 0;
 }
 
+function filterAndSortReports(reports) {
+  const now = Date.now();
+  const filtered = reports.filter((report) => !isResolvedAndExpired(report, now));
+  return [...filtered].sort((a, b) => getEffectiveTimestamp(b) - getEffectiveTimestamp(a));
+}
+
 export default function FeedTab({ onViewMap, onRequireSignUp }) {
   const { reports, loading, loadMore, hasMore, filters, updateFilters } = useReportsContext();
 
-  const feedReports = useMemo(() => {
-    const now = Date.now();
-
-    // 1. Filter out resolved reports older than 24 hours
-    const filtered = reports.filter(report => {
-      if (report.verification?.status === 'resolved') {
-        const resolvedMs = getFirestoreMs(report.verification?.resolution?.resolvedAt);
-        if (resolvedMs != null && (now - resolvedMs) > TWENTY_FOUR_HOURS_MS) {
-          return false;
-        }
-      }
-      return true;
-    });
-
-    // 2. Sort purely chronologically — newest effective timestamp first
-    return [...filtered].sort((a, b) => getEffectiveTimestamp(b) - getEffectiveTimestamp(a));
-  }, [reports]);
+  const feedReports = useMemo(() => filterAndSortReports(reports), [reports]);
 
   return (
     <div className="max-w-[800px] mx-auto px-3 py-3 sm:px-4 sm:py-4">

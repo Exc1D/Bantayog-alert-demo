@@ -3,7 +3,7 @@ import { validateMedia } from '../../utils/imageCompression';
 import { useToast } from '../Common/Toast';
 import { MAX_EVIDENCE } from '../../utils/constants';
 
-export default function EvidenceCapture({ files, onFilesChange, onContinue }) {
+export default function EvidenceCapture({ files, onFilesChange }) {
   const { addToast } = useToast();
   const cameraInputRef = useRef(null);
   const galleryInputRef = useRef(null);
@@ -30,11 +30,11 @@ export default function EvidenceCapture({ files, onFilesChange, onContinue }) {
 
     if (valid.length) {
       onFilesChange([...files, ...valid]);
-      const newPreviews = valid.map(f => ({
+      const newPreviews = valid.map((f) => ({
         url: URL.createObjectURL(f),
         type: f.type.startsWith('video/') ? 'video' : 'image',
       }));
-      setPreviewUrls(prev => [...prev, ...newPreviews]);
+      setPreviewUrls((prev) => [...prev, ...newPreviews]);
     }
 
     // Reset input so the same file can be selected again
@@ -44,14 +44,12 @@ export default function EvidenceCapture({ files, onFilesChange, onContinue }) {
   const handleRemove = (index) => {
     URL.revokeObjectURL(previewUrls[index].url);
     onFilesChange(files.filter((_, i) => i !== index));
-    setPreviewUrls(prev => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-textLight text-center">
-        Provide evidence of the incident
-      </p>
+      <p className="text-sm text-textLight text-center">Provide evidence of the incident</p>
 
       {/* Source buttons */}
       <div className="grid grid-cols-2 gap-3">
@@ -60,7 +58,17 @@ export default function EvidenceCapture({ files, onFilesChange, onContinue }) {
           onClick={() => cameraInputRef.current?.click()}
           className="flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-stone-200 bg-white hover:border-accent/50 hover:bg-accent/5 transition-all active:scale-[0.98]"
         >
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-stone-500">
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-stone-500"
+          >
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
             <circle cx="12" cy="13" r="4" />
           </svg>
@@ -72,7 +80,17 @@ export default function EvidenceCapture({ files, onFilesChange, onContinue }) {
           onClick={() => galleryInputRef.current?.click()}
           className="flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-stone-200 bg-white hover:border-accent/50 hover:bg-accent/5 transition-all active:scale-[0.98]"
         >
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-stone-500">
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-stone-500"
+          >
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
             <circle cx="8.5" cy="8.5" r="1.5" />
             <polyline points="21 15 16 10 5 21" />

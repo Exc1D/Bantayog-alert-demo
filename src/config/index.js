@@ -10,16 +10,21 @@ const requiredEnvVars = [
 ];
 
 function validateEnv() {
-  const missing = requiredEnvVars.filter(key => !import.meta.env[key]);
-  
+  const missing = requiredEnvVars.filter((key) => {
+    const value = import.meta.env[key];
+    return !value || value.includes('YOUR_');
+  });
+
   if (missing.length > 0) {
     console.error('\n========================================');
     console.error('Missing required environment variables:');
-    missing.forEach(key => console.error(`  - ${key}`));
+    missing.forEach((key) => console.error(`  - ${key}`));
     console.error('\nPlease check your .env file or .env.local');
     console.error('See .env.example for reference.');
     console.error('========================================\n');
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+    if (import.meta.env.VITE_APP_ENV === 'production') {
+      throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+    }
   }
 }
 

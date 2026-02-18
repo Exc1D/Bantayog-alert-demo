@@ -1,3 +1,4 @@
+import React from 'react';
 import * as Sentry from '@sentry/react';
 import sentryConfig from '../config/sentry';
 
@@ -5,7 +6,7 @@ let isInitialized = false;
 
 export function initSentry() {
   if (isInitialized) return;
-  
+
   if (!sentryConfig.enabled || !sentryConfig.dsn) {
     console.info('Sentry disabled: No DSN configured');
     return;
@@ -15,14 +16,14 @@ export function initSentry() {
     dsn: sentryConfig.dsn,
     environment: sentryConfig.environment,
     release: sentryConfig.release,
-    
+
     sampleRate: sentryConfig.sampleRate,
     tracesSampleRate: sentryConfig.tracesSampleRate,
     profilesSampleRate: sentryConfig.profilesSampleRate,
-    
+
     ignoreErrors: sentryConfig.ignoreErrors,
     denyUrls: sentryConfig.denyUrls,
-    
+
     integrations: [
       Sentry.browserTracingIntegration({
         tracePropagationTargets: sentryConfig.integrations.browserTracing.tracePropagationTargets,
@@ -34,10 +35,10 @@ export function initSentry() {
       Sentry.extraErrorDataIntegration(),
       Sentry.captureConsoleIntegration({ levels: ['error', 'warn'] }),
     ],
-    
+
     replaysSessionSampleRate: sentryConfig.replaysSessionSampleRate,
     replaysOnErrorSampleRate: sentryConfig.replaysOnErrorSampleRate,
-    
+
     beforeBreadcrumb(breadcrumb, hint) {
       if (breadcrumb.category === 'ui.click') {
         const target = hint?.event?.target;
@@ -47,7 +48,7 @@ export function initSentry() {
       }
       return breadcrumb;
     },
-    
+
     beforeSend(event, hint) {
       if (sentryConfig.isDevelopment) {
         console.error('Sentry event:', event, hint);
@@ -99,15 +100,15 @@ export function setContext(name, context) {
 
 export function captureException(error, context = {}) {
   const { tags, extra, user, level = 'error' } = context;
-  
+
   if (tags) {
     Object.entries(tags).forEach(([key, value]) => Sentry.setTag(key, value));
   }
-  
+
   if (extra) {
     Object.entries(extra).forEach(([key, value]) => Sentry.setExtra(key, value));
   }
-  
+
   if (user) {
     setUserContext(user);
   }
@@ -117,11 +118,11 @@ export function captureException(error, context = {}) {
 
 export function captureMessage(message, level = 'info', context = {}) {
   const { tags, extra } = context;
-  
+
   if (tags) {
     Object.entries(tags).forEach(([key, value]) => Sentry.setTag(key, value));
   }
-  
+
   if (extra) {
     Object.entries(extra).forEach(([key, value]) => Sentry.setExtra(key, value));
   }
@@ -133,7 +134,28 @@ export function withScope(callback) {
   return Sentry.withScope(callback);
 }
 
-export const ErrorBoundary = Sentry.ErrorBoundary;
+class FallbackErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+  resetError = () => this.setState({ error: null });
+  render() {
+    if (this.state.error) {
+      const { fallback } = this.props;
+      if (typeof fallback === 'function') {
+        return fallback({ error: this.state.error, resetError: this.resetError });
+      }
+      return fallback || null;
+    }
+    return this.props.children;
+  }
+}
+
+export const ErrorBoundary = Sentry.ErrorBoundary || FallbackErrorBoundary;
 export const withErrorBoundary = Sentry.withErrorBoundary;
 export const showReportDialog = Sentry.showReportDialog;
 

@@ -6,7 +6,13 @@ export default function ErrorFallback({ error, onRetry, onGoHome, showDetails = 
   return (
     <div className="flex flex-col items-center justify-center min-h-[300px] p-8 text-center">
       <div className="w-16 h-16 mb-4 rounded-full bg-red-100 flex items-center justify-center">
-        <svg aria-hidden="true" className="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg
+          aria-hidden="true"
+          className="w-8 h-8 text-red-600"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -24,7 +30,13 @@ export default function ErrorFallback({ error, onRetry, onGoHome, showDetails = 
       <div className="flex gap-3 flex-wrap justify-center">
         {onRetry && (
           <Button onClick={onRetry} variant="primary">
-            <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -37,7 +49,13 @@ export default function ErrorFallback({ error, onRetry, onGoHome, showDetails = 
         )}
         {onGoHome && (
           <Button onClick={onGoHome} variant="secondary">
-            <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

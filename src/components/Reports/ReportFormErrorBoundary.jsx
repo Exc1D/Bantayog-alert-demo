@@ -4,7 +4,8 @@ function FormFallback({ error, onRetry }) {
   return (
     <div className="flex flex-col items-center justify-center p-8 text-center bg-stone-50 rounded-lg">
       <div className="w-14 h-14 mb-3 rounded-full bg-amber-100 flex items-center justify-center">
-        <svg aria-hidden="true"
+        <svg
+          aria-hidden="true"
           className="w-7 h-7 text-amber-600"
           fill="none"
           viewBox="0 0 24 24"
@@ -29,7 +30,13 @@ function FormFallback({ error, onRetry }) {
           onClick={onRetry}
           className="inline-flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg font-semibold text-sm hover:bg-accentDark transition-colors"
         >
-          <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            aria-hidden="true"
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"

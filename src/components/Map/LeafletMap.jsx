@@ -73,7 +73,8 @@ export default function LeafletMap({ reports = [], onReportClick }) {
         style={{ bottom: '10px', left: '10px', width: '40px', height: '40px' }}
         aria-label="My Location"
       >
-        <svg aria-hidden="true"
+        <svg
+          aria-hidden="true"
           width="20"
           height="20"
           viewBox="0 0 24 24"

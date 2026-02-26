@@ -82,7 +82,10 @@ const TABS = [
 
 export default function TabNavigation({ activeTab, onTabChange }) {
   return (
-    <nav className="sticky top-[56px] z-40 bg-white border-b border-border/60" aria-label="Main navigation">
+    <nav
+      className="sticky top-[56px] z-40 bg-white border-b border-border/60"
+      aria-label="Main navigation"
+    >
       <div className="max-w-[1400px] mx-auto flex" role="tablist">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.id;

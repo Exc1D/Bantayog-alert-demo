@@ -58,7 +58,8 @@ export default function EvidenceCapture({ files, onFilesChange }) {
           onClick={() => cameraInputRef.current?.click()}
           className="flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-stone-200 bg-white hover:border-accent/50 hover:bg-accent/5 transition-all active:scale-[0.98]"
         >
-          <svg aria-hidden="true"
+          <svg
+            aria-hidden="true"
             width="32"
             height="32"
             viewBox="0 0 24 24"
@@ -80,7 +81,8 @@ export default function EvidenceCapture({ files, onFilesChange }) {
           onClick={() => galleryInputRef.current?.click()}
           className="flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-stone-200 bg-white hover:border-accent/50 hover:bg-accent/5 transition-all active:scale-[0.98]"
         >
-          <svg aria-hidden="true"
+          <svg
+            aria-hidden="true"
             width="32"
             height="32"
             viewBox="0 0 24 24"

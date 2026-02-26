@@ -17,7 +17,8 @@ export default function WeatherGrid({ weatherData, loading }) {
           onClick={() => setSelectedMunicipality(null)}
           className="text-xs text-accent font-semibold mb-3 hover:underline flex items-center gap-1"
         >
-          <svg aria-hidden="true"
+          <svg
+            aria-hidden="true"
             width="14"
             height="14"
             viewBox="0 0 24 24"

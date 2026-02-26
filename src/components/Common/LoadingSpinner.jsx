@@ -7,7 +7,11 @@ export default function LoadingSpinner({ size = 'md', text = '' }) {
 
   return (
     <div className="flex flex-col items-center justify-center py-8 gap-3">
-      <svg aria-hidden="true" className={`animate-spin ${sizes[size]} text-accent`} viewBox="0 0 24 24">
+      <svg
+        aria-hidden="true"
+        className={`animate-spin ${sizes[size]} text-accent`}
+        viewBox="0 0 24 24"
+      >
         <circle
           className="opacity-20"
           cx="12"

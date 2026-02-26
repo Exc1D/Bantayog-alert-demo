@@ -26,7 +26,8 @@ export default function ReportSubmission({
     <div className="bg-stone-50 border border-stone-200 rounded-lg p-3">
       <div className="flex items-center justify-between gap-2 mb-1">
         <div className="flex items-center gap-2">
-          <svg aria-hidden="true"
+          <svg
+            aria-hidden="true"
             width="14"
             height="14"
             viewBox="0 0 24 24"
@@ -70,7 +71,10 @@ export default function ReportSubmission({
 
           {/* Manual municipality fallback */}
           <div className="pt-1">
-            <label htmlFor="report-municipality" className="block text-[10px] font-bold text-textLight uppercase tracking-wider mb-1">
+            <label
+              htmlFor="report-municipality"
+              className="block text-[10px] font-bold text-textLight uppercase tracking-wider mb-1"
+            >
               Select your municipality{isInApp ? '' : ' manually'}
             </label>
             <select

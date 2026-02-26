@@ -19,7 +19,8 @@ export default function WeatherAlerts({ alerts = [] }) {
     return (
       <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
         <div className="flex items-center gap-2">
-          <svg aria-hidden="true"
+          <svg
+            aria-hidden="true"
             width="16"
             height="16"
             viewBox="0 0 24 24"

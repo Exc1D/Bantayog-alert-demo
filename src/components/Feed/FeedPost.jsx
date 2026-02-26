@@ -72,7 +72,8 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
                 {disasterType.label}
               </span>
               {status === 'verified' && (
-                <svg aria-hidden="true"
+                <svg
+                  aria-hidden="true"
                   width="14"
                   height="14"
                   viewBox="0 0 24 24"
@@ -86,7 +87,8 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
               )}
             </div>
             <div className="text-xs text-textLight mt-1 flex items-center gap-1">
-              <svg aria-hidden="true"
+              <svg
+                aria-hidden="true"
                 width="12"
                 height="12"
                 viewBox="0 0 24 24"

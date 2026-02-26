@@ -51,7 +51,10 @@ export default function ReportForm({ formData, onChange }) {
                     : 'border-stone-200 hover:border-stone-300 text-textLight'
                 }`}
               >
-                <span className="mr-1" aria-hidden="true">{style.icon}</span> {level}
+                <span className="mr-1" aria-hidden="true">
+                  {style.icon}
+                </span>{' '}
+                {level}
               </button>
             );
           })}
@@ -60,7 +63,10 @@ export default function ReportForm({ formData, onChange }) {
 
       {/* Description */}
       <div>
-        <label htmlFor="report-description" className="block text-xs font-bold text-textLight uppercase tracking-wider mb-2">
+        <label
+          htmlFor="report-description"
+          className="block text-xs font-bold text-textLight uppercase tracking-wider mb-2"
+        >
           What is happening? <span className="text-accent">*</span>
         </label>
         <textarea
@@ -76,14 +82,19 @@ export default function ReportForm({ formData, onChange }) {
           aria-required="true"
         />
         {descriptionState.warning && (
-          <p className="text-xs text-amber-600 mt-1" role="alert">{descriptionState.warning}</p>
+          <p className="text-xs text-amber-600 mt-1" role="alert">
+            {descriptionState.warning}
+          </p>
         )}
       </div>
 
       {/* Location Details */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label htmlFor="report-barangay" className="block text-xs font-bold text-textLight uppercase tracking-wider mb-2">
+          <label
+            htmlFor="report-barangay"
+            className="block text-xs font-bold text-textLight uppercase tracking-wider mb-2"
+          >
             Barangay
           </label>
           <input
@@ -98,7 +109,10 @@ export default function ReportForm({ formData, onChange }) {
           />
         </div>
         <div>
-          <label htmlFor="report-street" className="block text-xs font-bold text-textLight uppercase tracking-wider mb-2">
+          <label
+            htmlFor="report-street"
+            className="block text-xs font-bold text-textLight uppercase tracking-wider mb-2"
+          >
             Street/Landmark
           </label>
           <input

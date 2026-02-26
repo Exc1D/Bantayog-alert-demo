@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { AuthProvider, useAuthContext } from './AuthContext';
-import { useAuth } from '../hooks/useAuth';
 
 vi.mock('../hooks/useAuth', () => ({
   useAuth: vi.fn(() => ({

@@ -1,17 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { AuthProvider } from '../../contexts/AuthContext';
-import { ReportsProvider } from '../../contexts/ReportsContext';
 import Header from './Header';
 
 vi.mock('../../contexts/AuthContext', () => ({
   useAuthContext: vi.fn(),
-  AuthProvider: ({ children }) => children,
 }));
 
 vi.mock('../../contexts/ReportsContext', () => ({
   useReportsContext: vi.fn(),
-  ReportsProvider: ({ children }) => children,
 }));
 
 import { useAuthContext } from '../../contexts/AuthContext';

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import { ToastProvider, useToast } from './Toast';
 
 describe('Toast', () => {
@@ -10,11 +10,6 @@ describe('Toast', () => {
   afterEach(() => {
     vi.useRealTimers();
   });
-
-  const TestComponent = ({ type = 'info', message = 'Test message' }) => {
-    const { addToast } = useToast();
-    return <button onClick={() => addToast(message, type)}>Show Toast</button>;
-  };
 
   it('throws error when useToast is used outside provider', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});

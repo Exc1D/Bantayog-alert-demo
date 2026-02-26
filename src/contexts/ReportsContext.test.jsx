@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { ReportsProvider, useReportsContext } from './ReportsContext';
-import { useReports } from '../hooks/useReports';
 
 vi.mock('../hooks/useReports', () => ({
   useReports: vi.fn(() => ({

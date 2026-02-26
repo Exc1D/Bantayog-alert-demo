@@ -10,6 +10,8 @@ const requiredEnvVars = [
 ];
 
 function validateEnv() {
+  const isTestMode = import.meta.env.VITE_APP_ENV === 'test' || process.env.NODE_ENV === 'test';
+
   const missing = requiredEnvVars.filter((key) => {
     const value = import.meta.env[key];
     return !value || value.includes('YOUR_');
@@ -22,6 +24,12 @@ function validateEnv() {
     console.error('\nPlease check your .env file or .env.local');
     console.error('See .env.example for reference.');
     console.error('========================================\n');
+
+    if (isTestMode) {
+      console.warn('Running in test mode - using default values');
+      return;
+    }
+
     if (import.meta.env.VITE_APP_ENV === 'production') {
       throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
     }

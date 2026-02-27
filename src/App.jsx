@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, lazy, Suspense, useTransition } from 'react';
+import { SIDEBAR_WIDTH } from './config/tabs';
 import Header from './components/Layout/Header';
 import Sidebar from './components/Layout/Sidebar';
 import TabNavigation from './components/Layout/TabNavigation';
@@ -120,10 +121,8 @@ function AppContent() {
       <OfflineIndicator />
       <Header onProfileClick={handleOpenProfileTab} />
 
-      {/* Desktop Sidebar - hidden on mobile */}
-      <div className="hidden lg:block">
-        <Sidebar activeTab={activeTab} onTabChange={changeTab} />
-      </div>
+      {/* Desktop Sidebar - Sidebar handles its own responsive visibility */}
+      <Sidebar activeTab={activeTab} onTabChange={changeTab} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-0 lg:flex-row">
@@ -150,7 +149,8 @@ function AppContent() {
       {/* Emergency Report Button */}
       <button
         onClick={handleOpenReportModal}
-        className="fixed bottom-6 right-4 lg:right-[calc(8rem+1rem)] z-50 flex items-center gap-2 report-btn-glow text-white rounded-full emergency-pulse transition-all duration-200 px-5 py-3.5 sm:px-6"
+        className="fixed bottom-6 right-4 z-50 flex items-center gap-2 report-btn-glow text-white rounded-full emergency-pulse transition-all duration-200 px-5 py-3.5 sm:px-6"
+        style={{ right: `calc(${SIDEBAR_WIDTH} + 1rem)` }}
         aria-label="Report a hazard"
       >
         <svg

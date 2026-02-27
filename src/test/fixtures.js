@@ -23,10 +23,10 @@ export const mockUserProfiles = {
   citizen: {
     userId: 'user-123',
     email: 'citizen@test.com',
-    name: 'Juan Dela Cruz',
+    displayName: 'Juan Dela Cruz',
     photoURL: '',
     municipality: 'Laoag City',
-    role: 'citizen',
+    role: 'user',
     stats: {
       reportsSubmitted: 5,
       reportsVerified: 0,

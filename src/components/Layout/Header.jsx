@@ -59,8 +59,9 @@ export default memo(function Header({ onProfileClick }) {
 
   const avatarUrl = userProfile?.photoURL || user?.photoURL;
   const avatarInitial = useMemo(
-    () => (userProfile?.name || user?.displayName || 'U')[0].toUpperCase(),
-    [userProfile?.name, user?.displayName]
+    () =>
+      (userProfile?.displayName || userProfile?.name || user?.displayName || 'U')[0].toUpperCase(),
+    [userProfile?.displayName, userProfile?.name, user?.displayName]
   );
 
   const handleProfileClick = useCallback(() => {

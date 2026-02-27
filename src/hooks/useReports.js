@@ -80,12 +80,17 @@ export function useReports(filters = {}) {
   const loadMore = useCallback(async () => {
     if (!lastDoc || !hasMore) return;
 
-    const q = query(
+    const constraints = [
       collection(db, 'reports'),
+      ...(filters.municipality && filters.municipality !== 'all'
+        ? [where('location.municipality', '==', filters.municipality)]
+        : []),
       orderBy('timestamp', 'desc'),
       startAfter(lastDoc),
-      limit(FEED_PAGE_SIZE)
-    );
+      limit(FEED_PAGE_SIZE),
+    ];
+
+    const q = query(...constraints);
 
     const snapshot = await getDocs(q);
     const newDocs = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
@@ -93,7 +98,7 @@ export function useReports(filters = {}) {
     setReports((prev) => [...prev, ...newDocs]);
     setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
     setHasMore(snapshot.docs.length >= FEED_PAGE_SIZE);
-  }, [lastDoc, hasMore]);
+  }, [lastDoc, hasMore, filters.municipality]);
 
   return { reports, loading, error, loadMore, hasMore };
 }

@@ -326,13 +326,19 @@ function UserProfile() {
             />
           ) : (
             <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center text-white text-xl font-bold shrink-0">
-              {(userProfile?.name || user?.displayName || 'U')[0].toUpperCase()}
+              {(userProfile?.displayName ||
+                userProfile?.name ||
+                user?.displayName ||
+                'U')[0].toUpperCase()}
             </div>
           )}
 
           <div className="min-w-0 flex-1">
             <h2 className="text-lg font-bold truncate">
-              {userProfile?.name || user?.displayName || 'Anonymous User'}
+              {userProfile?.displayName ||
+                userProfile?.name ||
+                user?.displayName ||
+                'Anonymous User'}
             </h2>
             <p className="text-xs text-textLight">{user?.email || 'Guest'}</p>
             <p className="text-[11px] text-textMuted capitalize mt-0.5">

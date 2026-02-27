@@ -70,7 +70,7 @@ export function setUserContext(user) {
   Sentry.setUser({
     id: user.uid || user.id,
     email: user.email,
-    username: user.displayName || user.name,
+    username: user.displayName || user.name || user.email,
     role: user.role,
     municipality: user.municipality,
   });

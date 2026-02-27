@@ -5,7 +5,7 @@ import { AuthProvider, useAuthContext } from './AuthContext';
 vi.mock('../hooks/useAuth', () => ({
   useAuth: vi.fn(() => ({
     user: { uid: 'test-uid', email: 'test@example.com' },
-    userProfile: { name: 'Test User', role: 'citizen' },
+    userProfile: { displayName: 'Test User', role: 'user' },
     loading: false,
     signIn: vi.fn(),
     signUp: vi.fn(),

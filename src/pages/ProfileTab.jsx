@@ -259,7 +259,7 @@ function AuthForm() {
 }
 
 function UserProfile() {
-  const { user, userProfile, signOut, isAdmin, updateProfilePicture, removeAccount } =
+  const { user, userProfile, signOut, isAdmin, updateProfilePicture} =
     useAuthContext();
   const { addToast } = useToast();
   const [uploadingPhoto, setUploadingPhoto] = useState(false);

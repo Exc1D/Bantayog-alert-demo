@@ -57,6 +57,11 @@ export const firebaseConfig = Object.freeze({
   storageBucket: getEnvString('VITE_FIREBASE_STORAGE_BUCKET'),
   messagingSenderId: getEnvString('VITE_FIREBASE_MESSAGING_SENDER_ID'),
   appId: getEnvString('VITE_FIREBASE_APP_ID'),
+  measurementId: getEnvString('VITE_FIREBASE_MEASUREMENT_ID'),
+});
+
+export const fcmConfig = Object.freeze({
+  vapidKey: getEnvString('VITE_FIREBASE_VAPID_KEY'),
 });
 
 export const apiConfig = Object.freeze({
@@ -67,6 +72,7 @@ export const apiConfig = Object.freeze({
 export const config = {
   app: appConfig,
   firebase: firebaseConfig,
+  fcm: fcmConfig,
   api: apiConfig,
   sentry: sentryConfig,
 };

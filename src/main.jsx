@@ -4,6 +4,7 @@ import App from './App';
 import './App.css';
 import { initSentry, ErrorBoundary, captureException } from './utils/sentry';
 import { reportWebVitals } from './utils/webVitals';
+import A11yProvider from './components/Common/A11yProvider';
 
 initSentry();
 
@@ -45,7 +46,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </div>
       )}
     >
-      <App />
+      <A11yProvider>
+        <App />
+      </A11yProvider>
     </ErrorBoundary>
   </React.StrictMode>
 );

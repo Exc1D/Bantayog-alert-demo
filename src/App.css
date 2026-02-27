@@ -224,3 +224,90 @@
 .report-btn-glow:active {
   transform: scale(0.97);
 }
+
+/* ---- Reduced Motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .emergency-pulse,
+  .live-beacon,
+  .critical-glow {
+    animation: none !important;
+  }
+
+  .report-btn-glow:hover {
+    transform: none;
+  }
+}
+
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.reduce-motion .emergency-pulse,
+.reduce-motion .live-beacon,
+.reduce-motion .critical-glow {
+  animation: none !important;
+}
+
+/* ---- Screen reader only utility ---- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.not-sr-only {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* ---- Focus visible styles ---- */
+:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* ---- High contrast mode support ---- */
+@media (prefers-contrast: high) {
+  .report-btn-glow {
+    background: #dc2626;
+    border: 2px solid #fff;
+  }
+
+  .severity-border-critical {
+    border-left-width: 6px;
+  }
+
+  .severity-border-moderate {
+    border-left-width: 6px;
+  }
+
+  .severity-border-minor {
+    border-left-width: 6px;
+  }
+}

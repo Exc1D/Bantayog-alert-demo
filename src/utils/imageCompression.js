@@ -17,12 +17,17 @@ export async function compressMultipleImages(files) {
   return compressed;
 }
 
-export function createThumbnail(file) {
-  return imageCompression(file, {
-    maxSizeMB: 0.1,
-    maxWidthOrHeight: 300,
-    useWebWorker: true,
-  });
+export async function createThumbnail(file) {
+  try {
+    return await imageCompression(file, {
+      maxSizeMB: 0.1,
+      maxWidthOrHeight: 300,
+      useWebWorker: true,
+    });
+  } catch (error) {
+    captureException(error, { tags: { component: 'createThumbnail' } });
+    return file;
+  }
 }
 
 export function validateImage(file) {

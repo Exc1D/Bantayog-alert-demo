@@ -12,9 +12,9 @@ import {
   updateDoc,
   deleteDoc,
   doc,
-  increment,
   arrayUnion,
   arrayRemove,
+  runTransaction,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage, serverTimestamp } from '../utils/firebaseConfig';
@@ -22,7 +22,7 @@ import { compressImage, createThumbnail } from '../utils/imageCompression';
 import { fetchCurrentWeather } from '../utils/weatherAPI';
 import { resolveMunicipality } from '../utils/geoFencing';
 import { FEED_PAGE_SIZE } from '../utils/constants';
-import { checkLimit, recordAction, formatResetTime } from '../utils/rateLimiter';
+import { checkLimit, formatResetTime } from '../utils/rateLimiter';
 import { logAuditEvent, AuditEvent, AuditEventType } from '../utils/auditLogger';
 
 const ADMIN_ROLES = ['superadmin_provincial'];
@@ -80,24 +80,28 @@ export function useReports(filters = {}) {
   const loadMore = useCallback(async () => {
     if (!lastDoc || !hasMore) return;
 
-    const constraints = [
-      collection(db, 'reports'),
-      ...(filters.municipality && filters.municipality !== 'all'
-        ? [where('location.municipality', '==', filters.municipality)]
-        : []),
-      orderBy('timestamp', 'desc'),
-      startAfter(lastDoc),
-      limit(FEED_PAGE_SIZE),
-    ];
+    try {
+      const constraints = [
+        collection(db, 'reports'),
+        ...(filters.municipality && filters.municipality !== 'all'
+          ? [where('location.municipality', '==', filters.municipality)]
+          : []),
+        orderBy('timestamp', 'desc'),
+        startAfter(lastDoc),
+        limit(FEED_PAGE_SIZE),
+      ];
 
-    const q = query(...constraints);
+      const q = query(...constraints);
 
-    const snapshot = await getDocs(q);
-    const newDocs = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
+      const snapshot = await getDocs(q);
+      const newDocs = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
 
-    setReports((prev) => [...prev, ...newDocs]);
-    setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
-    setHasMore(snapshot.docs.length >= FEED_PAGE_SIZE);
+      setReports((prev) => [...prev, ...newDocs]);
+      setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
+      setHasMore(snapshot.docs.length >= FEED_PAGE_SIZE);
+    } catch (err) {
+      setError(err?.message ?? 'Failed to load more reports');
+    }
   }, [lastDoc, hasMore, filters.municipality]);
 
   return { reports, loading, error, loadMore, hasMore };
@@ -117,8 +121,6 @@ export async function submitReport(reportData, evidenceFiles, user) {
     error.resetTime = rateLimitStatus.resetTime;
     throw error;
   }
-
-  recordAction('report_submission');
 
   // Detect municipality (sync, run first)
   const resolved = resolveMunicipality(
@@ -280,9 +282,19 @@ export async function upvoteReport(reportId, userId) {
   if (!userId) throw new Error('Authentication required to upvote.');
 
   const reportRef = doc(db, 'reports', reportId);
-  await updateDoc(reportRef, {
-    'engagement.upvotes': increment(1),
-    'engagement.upvotedBy': arrayUnion(userId),
+  await runTransaction(db, async (transaction) => {
+    const reportDoc = await transaction.get(reportRef);
+    if (!reportDoc.exists()) throw new Error('Report not found.');
+
+    const engagement = reportDoc.data().engagement || {};
+    const upvotedBy = engagement.upvotedBy || [];
+
+    if (upvotedBy.includes(userId)) return;
+
+    transaction.update(reportRef, {
+      'engagement.upvotes': (engagement.upvotes || 0) + 1,
+      'engagement.upvotedBy': arrayUnion(userId),
+    });
   });
 }
 
@@ -290,9 +302,19 @@ export async function removeUpvote(reportId, userId) {
   if (!userId) throw new Error('Authentication required to remove upvote.');
 
   const reportRef = doc(db, 'reports', reportId);
-  await updateDoc(reportRef, {
-    'engagement.upvotes': increment(-1),
-    'engagement.upvotedBy': arrayRemove(userId),
+  await runTransaction(db, async (transaction) => {
+    const reportDoc = await transaction.get(reportRef);
+    if (!reportDoc.exists()) throw new Error('Report not found.');
+
+    const engagement = reportDoc.data().engagement || {};
+    const upvotedBy = engagement.upvotedBy || [];
+
+    if (!upvotedBy.includes(userId)) return;
+
+    transaction.update(reportRef, {
+      'engagement.upvotes': Math.max((engagement.upvotes || 0) - 1, 0),
+      'engagement.upvotedBy': arrayRemove(userId),
+    });
   });
 }
 

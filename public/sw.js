@@ -1,6 +1,7 @@
 const CACHE_NAME = 'bantayog-alert-v2';
 const TILE_CACHE = 'bantayog-tiles-v1';
 const MAX_TILE_CACHE_SIZE = 500;
+const MAX_APP_CACHE_SIZE = 200;
 
 const STATIC_ASSETS = [
   '/',
@@ -13,9 +14,8 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(STATIC_ASSETS);
-    })
+    }).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
 // Activate event - clean old caches
@@ -33,12 +33,12 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Trim tile cache to prevent unbounded growth
-async function trimTileCache() {
-  const cache = await caches.open(TILE_CACHE);
+// Trim cache to prevent unbounded growth
+async function trimCache(cacheName, maxSize) {
+  const cache = await caches.open(cacheName);
   const keys = await cache.keys();
-  if (keys.length > MAX_TILE_CACHE_SIZE) {
-    const toDelete = keys.slice(0, keys.length - MAX_TILE_CACHE_SIZE);
+  if (keys.length > maxSize) {
+    const toDelete = keys.slice(0, keys.length - maxSize);
     await Promise.all(toDelete.map((key) => cache.delete(key)));
   }
 }
@@ -69,7 +69,7 @@ self.addEventListener('fetch', (event) => {
           return fetch(event.request).then((response) => {
             if (response.ok) {
               cache.put(event.request, response.clone());
-              trimTileCache();
+              trimCache(TILE_CACHE, MAX_TILE_CACHE_SIZE);
             }
             return response;
           });
@@ -86,6 +86,7 @@ self.addEventListener('fetch', (event) => {
         const responseClone = response.clone();
         caches.open(CACHE_NAME).then((cache) => {
           cache.put(event.request, responseClone);
+          trimCache(CACHE_NAME, MAX_APP_CACHE_SIZE);
         });
         return response;
       })

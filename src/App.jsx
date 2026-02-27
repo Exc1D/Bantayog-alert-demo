@@ -18,6 +18,7 @@ const ProfileTab = lazy(() => import('./pages/ProfileTab'));
 const ReportModal = lazy(() => import('./components/Reports/ReportModal'));
 
 const VALID_TABS = ['map', 'feed', 'weather', 'profile'];
+const noop = () => {};
 
 const TAB_TITLES = {
   map: 'Map - BANTAYOG ALERT',
@@ -88,7 +89,6 @@ function AppContent() {
   };
 
   const handleOpenReportModal = () => setShowReportModal(true);
-  const noop = () => {};
 
   const renderTab = () => {
     switch (activeTab) {

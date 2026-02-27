@@ -6,6 +6,7 @@ import LoadingSpinner from './components/Common/LoadingSpinner';
 import ErrorBoundary from './components/Common/ErrorBoundary';
 import MapErrorBoundary from './components/Map/MapErrorBoundary';
 import ReportFormErrorBoundary from './components/Reports/ReportFormErrorBoundary';
+import OfflineIndicator from './components/Common/OfflineIndicator';
 import { AuthProvider } from './contexts/AuthContext';
 import { ReportsProvider } from './contexts/ReportsContext';
 import { ToastProvider } from './components/Common/Toast';
@@ -115,6 +116,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-bg flex flex-col">
+      <OfflineIndicator />
       <Header onProfileClick={handleOpenProfileTab} />
       <TabNavigation activeTab={activeTab} onTabChange={changeTab} />
 

@@ -10,8 +10,8 @@ export const FEATURE_FLAGS = Object.freeze({
 
 const DEFAULT_FLAGS = Object.freeze({
   [FEATURE_FLAGS.NEW_REPORT_FLOW]: false,
-  [FEATURE_FLAGS.WEATHER_ALERTS]: false,
-  [FEATURE_FLAGS.COMMUNITY_ENGAGEMENT]: false,
+  [FEATURE_FLAGS.WEATHER_ALERTS]: true,
+  [FEATURE_FLAGS.COMMUNITY_ENGAGEMENT]: true,
   [FEATURE_FLAGS.ADMIN_ANALYTICS]: false,
   [FEATURE_FLAGS.BETA_FEATURES]: false,
 });
@@ -19,8 +19,8 @@ const DEFAULT_FLAGS = Object.freeze({
 const ENVIRONMENT_DEFAULTS = Object.freeze({
   production: {
     [FEATURE_FLAGS.NEW_REPORT_FLOW]: false,
-    [FEATURE_FLAGS.WEATHER_ALERTS]: false,
-    [FEATURE_FLAGS.COMMUNITY_ENGAGEMENT]: false,
+    [FEATURE_FLAGS.WEATHER_ALERTS]: true,
+    [FEATURE_FLAGS.COMMUNITY_ENGAGEMENT]: true,
     [FEATURE_FLAGS.ADMIN_ANALYTICS]: false,
     [FEATURE_FLAGS.BETA_FEATURES]: false,
   },
@@ -44,7 +44,7 @@ let remoteConfigValues = {};
 let isRemoteConfigInitialized = false;
 
 function getEnvironmentKey() {
-  const env = appConfig.env;
+  const { env = 'development' } = appConfig;
   if (env === 'production') return 'production';
   if (env === 'staging') return 'staging';
   return 'development';

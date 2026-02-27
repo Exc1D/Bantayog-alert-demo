@@ -33,11 +33,12 @@ validateFirebaseConfig();
 
 const app = initializeApp(firebaseConfig);
 
-const remoteConfig = getRemoteConfig(app);
+const firebaseRemoteConfig = getRemoteConfig(app);
+firebaseRemoteConfig.settings.minimumFetchIntervalMillis = 3600000;
 
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
-export { remoteConfig };
+export const remoteConfig = firebaseRemoteConfig;
 export { serverTimestamp };
 export default app;

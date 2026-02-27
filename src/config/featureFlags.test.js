@@ -66,8 +66,8 @@ describe('featureFlags', () => {
     const { getDefaultFlags } = await import('../../src/config/featureFlags');
     const defaults = getDefaultFlags();
     expect(defaults.newReportFlow).toBe(false);
-    expect(defaults.weatherAlerts).toBe(false);
-    expect(defaults.communityEngagement).toBe(false);
+    expect(defaults.weatherAlerts).toBe(true);
+    expect(defaults.communityEngagement).toBe(true);
     expect(defaults.adminAnalytics).toBe(false);
     expect(defaults.betaFeatures).toBe(false);
   });

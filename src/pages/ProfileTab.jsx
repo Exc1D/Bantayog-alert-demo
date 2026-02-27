@@ -259,11 +259,9 @@ function AuthForm() {
 }
 
 function UserProfile() {
-  const { user, userProfile, signOut, isAdmin, updateProfilePicture, removeAccount } =
-    useAuthContext();
+  const { user, userProfile, signOut, isAdmin, updateProfilePicture } = useAuthContext();
   const { addToast } = useToast();
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
-  const [deletingAccount, setDeletingAccount] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleSignOut = async () => {
@@ -311,36 +309,6 @@ function UserProfile() {
     } finally {
       setUploadingPhoto(false);
       event.target.value = '';
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    const confirmed = window.confirm(
-      'Delete your account permanently? This action cannot be undone.'
-    );
-    if (!confirmed) {
-      return;
-    }
-
-    const verificationText = window.prompt('Type DELETE to confirm account deletion.');
-    const normalizedConfirmation = verificationText?.trim();
-    if (normalizedConfirmation !== 'DELETE') {
-      addToast('Account deletion cancelled. Please type DELETE exactly to proceed.', 'warning');
-      return;
-    }
-
-    setDeletingAccount(true);
-    try {
-      await removeAccount();
-      addToast('Your account has been deleted.', 'info');
-    } catch (error) {
-      if (error?.code === 'auth/requires-recent-login') {
-        addToast('Please sign in again before deleting your account.', 'warning');
-      } else {
-        addToast(error.message || 'Failed to delete account.', 'error');
-      }
-    } finally {
-      setDeletingAccount(false);
     }
   };
 
@@ -425,17 +393,6 @@ function UserProfile() {
           <Button variant="secondary" onClick={handleSignOut} className="w-full">
             Sign Out
           </Button>
-
-          {!user?.isAnonymous && (
-            <Button
-              variant="ghost"
-              onClick={handleDeleteAccount}
-              loading={deletingAccount}
-              className="w-full text-red-600 hover:text-red-700"
-            >
-              Delete Account
-            </Button>
-          )}
         </div>
       </div>
 

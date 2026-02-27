@@ -148,6 +148,23 @@ export function useAuth() {
       throw new Error('You must be signed in to update your profile picture.');
     }
 
+    // Delete old avatar if it exists
+    const currentPhotoURL = auth.currentUser.photoURL || userProfile?.photoURL;
+    if (currentPhotoURL && currentPhotoURL.includes('/avatars%2F')) {
+      try {
+        const match = currentPhotoURL.match(/\/o\/(.*?)\?/);
+        if (match?.[1]) {
+          const storagePath = decodeURIComponent(match[1]);
+          await deleteObject(ref(storage, storagePath));
+        }
+      } catch (error) {
+        captureException(error, {
+          tags: { component: 'useAuth', action: 'deleteOldAvatar' },
+          level: 'warning',
+        });
+      }
+    }
+
     const avatarRef = ref(storage, `avatars/${auth.currentUser.uid}/${Date.now()}-${file.name}`);
     await uploadBytes(avatarRef, file);
     const photoURL = await getDownloadURL(avatarRef);
@@ -193,8 +210,8 @@ export function useAuth() {
       })
     );
 
-    await deleteDoc(doc(db, 'users', uid));
     await deleteUser(auth.currentUser);
+    await deleteDoc(doc(db, 'users', uid));
     setUser(null);
     setUserProfile(null);
   };

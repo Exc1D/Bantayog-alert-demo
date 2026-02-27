@@ -65,8 +65,12 @@ export default function EngagementButtons({
         // User cancelled share
       }
     } else {
-      await navigator.clipboard.writeText(window.location.href);
-      addToast('Link copied to clipboard', 'success');
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        addToast('Link copied to clipboard', 'success');
+      } catch {
+        addToast('Could not copy link', 'error');
+      }
     }
   };
 

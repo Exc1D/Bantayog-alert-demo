@@ -64,11 +64,14 @@ export function useWeather(municipality) {
 export function useAllMunicipalitiesWeather() {
   const [weatherData, setWeatherData] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchAll() {
       setLoading(true);
+      setError(null);
       const results = {};
+      let fetchErrors = 0;
 
       const entries = Object.entries(MUNICIPALITY_COORDS);
       const promises = entries.map(async ([name, coords]) => {
@@ -82,24 +85,31 @@ export function useAllMunicipalitiesWeather() {
         try {
           const weather = await fetchCurrentWeather(coords.lat, coords.lng);
           results[name] = weather;
-          // Store in shared cache
+          // Store in shared cache, preserving existing forecast data
+          const existing = weatherCache.get(name);
           weatherCache.set(name, {
             weather,
-            forecast: [],
+            forecast: existing?.forecast ?? [],
             timestamp: Date.now(),
           });
         } catch {
           results[name] = null;
+          fetchErrors++;
         }
       });
 
       await Promise.all(promises);
       setWeatherData(results);
+      if (fetchErrors > 0) {
+        setError(
+          `Failed to fetch weather for ${fetchErrors} municipality${fetchErrors > 1 ? 'ies' : ''}`
+        );
+      }
       setLoading(false);
     }
 
     fetchAll();
   }, []);
 
-  return { weatherData, loading };
+  return { weatherData, loading, error };
 }

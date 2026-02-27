@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Modal from '../Common/Modal';
 import Button from '../Common/Button';
 import { captureException } from '../../utils/sentry';
@@ -42,6 +42,13 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
   const { user, signInAsGuest } = useAuthContext();
   const { addToast } = useToast();
   const rateLimit = useRateLimit('report_submission');
+  const anonTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (anonTimeoutRef.current) clearTimeout(anonTimeoutRef.current);
+    };
+  }, []);
 
   const municipality = location
     ? resolveMunicipality(location.lat, location.lng).municipality
@@ -144,7 +151,7 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
       }
 
       if (activeUser?.isAnonymous && onAnonymousReportSubmitted) {
-        window.setTimeout(() => {
+        anonTimeoutRef.current = window.setTimeout(() => {
           onAnonymousReportSubmitted();
         }, 10000);
       }

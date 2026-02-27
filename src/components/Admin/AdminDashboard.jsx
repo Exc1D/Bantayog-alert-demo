@@ -59,19 +59,27 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!isAdmin) return;
 
+    const municipalityFilter =
+      !isSuperAdmin && userProfile?.municipality
+        ? [where('location.municipality', '==', userProfile.municipality)]
+        : [];
+
     const pendingQuery = query(
       collection(db, 'reports'),
-      where('verification.status', '==', 'pending')
+      where('verification.status', '==', 'pending'),
+      ...municipalityFilter
     );
 
     const verifiedQuery = query(
       collection(db, 'reports'),
-      where('verification.status', '==', 'verified')
+      where('verification.status', '==', 'verified'),
+      ...municipalityFilter
     );
 
     const resolvedQuery = query(
       collection(db, 'reports'),
-      where('verification.status', '==', 'resolved')
+      where('verification.status', '==', 'resolved'),
+      ...municipalityFilter
     );
 
     const unsubPending = onSnapshot(
@@ -79,13 +87,7 @@ export default function AdminDashboard() {
       (snapshot) => {
         let docs = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
         docs = sortByTimestamp(docs);
-        if (!isSuperAdmin && userProfile?.municipality) {
-          setPendingReports(
-            docs.filter((d) => d.location?.municipality === userProfile.municipality)
-          );
-        } else {
-          setPendingReports(docs);
-        }
+        setPendingReports(docs);
         setLoading(false);
       },
       (err) => {
@@ -99,13 +101,7 @@ export default function AdminDashboard() {
       (snapshot) => {
         let docs = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
         docs = sortByTimestamp(docs);
-        if (!isSuperAdmin && userProfile?.municipality) {
-          setVerifiedReports(
-            docs.filter((d) => d.location?.municipality === userProfile.municipality)
-          );
-        } else {
-          setVerifiedReports(docs);
-        }
+        setVerifiedReports(docs);
       },
       (err) => {
         captureException(err, { tags: { component: 'AdminDashboard', query: 'verified' } });
@@ -124,14 +120,7 @@ export default function AdminDashboard() {
         });
 
         docs = sortByTimestamp(docs);
-
-        if (!isSuperAdmin && userProfile?.municipality) {
-          setArchivedReports(
-            docs.filter((d) => d.location?.municipality === userProfile.municipality)
-          );
-        } else {
-          setArchivedReports(docs);
-        }
+        setArchivedReports(docs);
       },
       (err) => {
         captureException(err, { tags: { component: 'AdminDashboard', query: 'archived' } });

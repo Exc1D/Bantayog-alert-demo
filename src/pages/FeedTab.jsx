@@ -30,16 +30,47 @@ function getEffectiveTimestamp(report) {
   return getFirestoreMs(report.timestamp) ?? 0;
 }
 
-function filterAndSortReports(reports) {
+function getSeverityRank(severity) {
+  switch (severity) {
+    case 'critical':
+      return 0;
+    case 'moderate':
+      return 1;
+    case 'minor':
+      return 2;
+    default:
+      return 3;
+  }
+}
+
+function filterAndSortReports(reports, sort) {
   const now = Date.now();
   const filtered = reports.filter((report) => !isResolvedAndExpired(report, now));
+
+  if (sort === 'upvoted') {
+    return [...filtered].sort(
+      (a, b) => (b.engagement?.upvotes || 0) - (a.engagement?.upvotes || 0)
+    );
+  }
+
+  if (sort === 'critical') {
+    return [...filtered].sort((a, b) => {
+      const sevDiff = getSeverityRank(a.disaster?.severity) - getSeverityRank(b.disaster?.severity);
+      if (sevDiff !== 0) return sevDiff;
+      return getEffectiveTimestamp(b) - getEffectiveTimestamp(a);
+    });
+  }
+
   return [...filtered].sort((a, b) => getEffectiveTimestamp(b) - getEffectiveTimestamp(a));
 }
 
 export default function FeedTab({ onViewMap, onRequireSignUp }) {
   const { reports, loading, loadMore, hasMore, filters, updateFilters } = useReportsContext();
 
-  const feedReports = useMemo(() => filterAndSortReports(reports), [reports]);
+  const feedReports = useMemo(
+    () => filterAndSortReports(reports, filters.sort),
+    [reports, filters.sort]
+  );
 
   return (
     <div className="max-w-[800px] mx-auto px-3 py-3 sm:px-4 sm:py-4">

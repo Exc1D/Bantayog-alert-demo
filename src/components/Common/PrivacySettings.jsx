@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { doc, setDoc } from 'firebase/firestore';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { db } from '../../utils/firebaseConfig';
 import Button from '../Common/Button';
 import Modal from '../Common/Modal';
 import { useToast } from '../Common/Toast';
@@ -21,8 +23,19 @@ export default function PrivacySettings() {
   }
 
   const handleDataCollectionToggle = async () => {
-    setDataCollectionEnabled((prev) => !prev);
-    addToast(`Data collection ${!dataCollectionEnabled ? 'enabled' : 'disabled'}`, 'info');
+    const newValue = !dataCollectionEnabled;
+    setDataCollectionEnabled(newValue);
+    try {
+      await setDoc(
+        doc(db, 'users', user.uid),
+        { settings: { dataCollectionEnabled: newValue } },
+        { merge: true }
+      );
+      addToast(`Data collection ${newValue ? 'enabled' : 'disabled'}`, 'info');
+    } catch {
+      setDataCollectionEnabled(!newValue);
+      addToast('Failed to update privacy setting', 'error');
+    }
   };
 
   const handleExportData = async () => {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export function useReducedMotion() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
@@ -57,21 +57,21 @@ export function useFocusTrap(ref, isActive = true) {
 }
 
 export function useFocusManagement() {
-  const focusHistoryRef = [];
+  const focusHistoryRef = useRef([]);
 
   const saveFocus = () => {
-    focusHistoryRef.push(document.activeElement);
+    focusHistoryRef.current.push(document.activeElement);
   };
 
   const restoreFocus = () => {
-    const lastFocused = focusHistoryRef.pop();
+    const lastFocused = focusHistoryRef.current.pop();
     if (lastFocused && typeof lastFocused.focus === 'function') {
       lastFocused.focus();
     }
   };
 
   const clearFocusHistory = () => {
-    focusHistoryRef.length = 0;
+    focusHistoryRef.current = [];
   };
 
   return {

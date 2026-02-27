@@ -1,6 +1,7 @@
 const CACHE_NAME = 'bantayog-alert-v3';
 const TILE_CACHE = 'bantayog-tiles-v1';
 const OFFLINE_QUEUE_DB = 'bantayog-offline-queue';
+const OFFLINE_QUEUE_DB_VERSION = 1;
 const MAX_TILE_CACHE_SIZE = 500;
 const MAX_APP_CACHE_SIZE = 200;
 
@@ -9,6 +10,24 @@ const STATIC_ASSETS = ['/', '/index.html', '/manifest.json'];
 const OFFLINE_FALLBACKS = {
   document: '/',
 };
+
+/**
+ * Single canonical IndexedDB helper for offline queue.
+ * Handles both opening and schema upgrades in one place.
+ */
+function openOfflineQueueDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(OFFLINE_QUEUE_DB, OFFLINE_QUEUE_DB_VERSION);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('pending')) {
+        db.createObjectStore('pending', { keyPath: 'id', autoIncrement: true });
+      }
+    };
+  });
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -29,31 +48,10 @@ self.addEventListener('activate', (event) => {
           cacheNames.filter((name) => !keepCaches.includes(name)).map((name) => caches.delete(name))
         )
       )
-      .then(() => initOfflineQueue())
+      .then(() => openOfflineQueueDB())
       .then(() => self.clients.claim())
   );
 });
-
-async function initOfflineQueue() {
-  const db = await openOfflineDB();
-  if (!db.objectStoreNames.contains('pending')) {
-    db.createObjectStore('pending', { keyPath: 'id', autoIncrement: true });
-  }
-}
-
-function openOfflineDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(OFFLINE_QUEUE_DB, 1);
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains('pending')) {
-        db.createObjectStore('pending', { keyPath: 'id', autoIncrement: true });
-      }
-    };
-  });
-}
 
 async function addToOfflineQueue(request) {
   const db = await openOfflineQueueDB();
@@ -72,23 +70,9 @@ async function addToOfflineQueue(request) {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(['pending'], 'readwrite');
     const store = transaction.objectStore('pending');
-    const request = store.add(queueItem);
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-}
-
-function openOfflineQueueDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(OFFLINE_QUEUE_DB, 2);
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains('pending')) {
-        db.createObjectStore('pending', { keyPath: 'id', autoIncrement: true });
-      }
-    };
+    const addRequest = store.add(queueItem);
+    addRequest.onsuccess = () => resolve(addRequest.result);
+    addRequest.onerror = () => reject(addRequest.error);
   });
 }
 
@@ -130,7 +114,7 @@ async function processOfflineQueue() {
               message: 'Failed to sync offline action',
             });
           }
-        } catch (error) {
+        } catch {
           if (item.retryCount < 3) {
             item.retryCount++;
             store.put(item);

@@ -1,5 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
 
+const OFFLINE_QUEUE_DB = 'bantayog-offline-queue';
+const OFFLINE_QUEUE_DB_VERSION = 1;
+
+function openOfflineDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(OFFLINE_QUEUE_DB, OFFLINE_QUEUE_DB_VERSION);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('pending')) {
+        db.createObjectStore('pending', { keyPath: 'id', autoIncrement: true });
+      }
+    };
+  });
+}
+
 export function useOffline() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [wasOffline, setWasOffline] = useState(false);
@@ -61,14 +78,20 @@ export function useOfflineQueue() {
     updatePendingCount();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', (event) => {
+      const handleMessage = (event) => {
         if (
           event.data &&
           (event.data.type === 'sync-success' || event.data.type === 'sync-failed')
         ) {
           updatePendingCount();
         }
-      });
+      };
+
+      navigator.serviceWorker.addEventListener('message', handleMessage);
+
+      return () => {
+        navigator.serviceWorker.removeEventListener('message', handleMessage);
+      };
     }
   }, [updatePendingCount, isOnline]);
 
@@ -90,20 +113,6 @@ export function useOfflineQueue() {
     syncNow,
     updatePendingCount,
   };
-}
-
-function openOfflineDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('bantayog-offline-queue', 2);
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains('pending')) {
-        db.createObjectStore('pending', { keyPath: 'id', autoIncrement: true });
-      }
-    };
-  });
 }
 
 export function getQueuedItems() {

@@ -42,17 +42,50 @@ const firebaseRemoteConfig = getRemoteConfig(app);
 firebaseRemoteConfig.settings.minimumFetchIntervalMillis = 3600000;
 
 let messagingInstance = null;
-isSupported()
-  .then((supported) => {
-    if (supported) {
-      messagingInstance = getMessaging(app);
-    }
-  })
-  .catch(() => {});
+let messagingSupported = null;
 
-export { db, serverTimestamp };
+/**
+ * Lazily initializes and returns the Firebase Messaging instance.
+ * Returns null if messaging is not supported in the current environment.
+ * @returns {Promise<object|null>}
+ */
+async function getMessagingInstance() {
+  if (messagingSupported === null) {
+    try {
+      messagingSupported = await isSupported();
+    } catch {
+      messagingSupported = false;
+    }
+  }
+
+  if (!messagingSupported) {
+    return null;
+  }
+
+  if (!messagingInstance) {
+    messagingInstance = getMessaging(app);
+  }
+
+  return messagingInstance;
+}
+
+/**
+ * Checks if Firebase Messaging is supported in the current environment.
+ * @returns {Promise<boolean>}
+ */
+async function isMessagingSupported() {
+  if (messagingSupported === null) {
+    try {
+      messagingSupported = await isSupported();
+    } catch {
+      messagingSupported = false;
+    }
+  }
+  return messagingSupported;
+}
+
+export { db, serverTimestamp, getMessagingInstance, isMessagingSupported };
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 export const remoteConfig = firebaseRemoteConfig;
-export const messaging = messagingInstance;
 export default app;

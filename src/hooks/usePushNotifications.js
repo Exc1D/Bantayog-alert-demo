@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getMessaging, getToken, onMessage, deleteToken } from 'firebase/messaging';
+import { getToken, onMessage, deleteToken } from 'firebase/messaging';
 import { httpsCallable } from 'firebase/functions';
 import { getFunctions } from 'firebase/functions';
-import { app } from '../utils/firebaseConfig';
+import { app, getMessagingInstance, isMessagingSupported } from '../utils/firebaseConfig';
 import { captureException } from '../utils/sentry';
 
-const messaging = getMessaging(app);
 const functions = getFunctions(app, 'us-central1');
 
 const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY;
@@ -23,29 +22,63 @@ function checkPushSupport() {
 export function usePushNotifications() {
   const [token, setToken] = useState(null);
   const [permission, setPermission] = useState(getNotificationPermission);
-  const [isSupported] = useState(checkPushSupport);
+  const [isSupported, setIsSupported] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!isSupported) return;
+    let mounted = true;
 
-    const unsubscribe = onMessage(messaging, (payload) => {
-      const { notification, data } = payload;
-
-      if (notification && Notification.permission === 'granted') {
-        const notificationOptions = {
-          body: notification.body,
-          icon: '/icons/icon-192x192.png',
-          badge: '/icons/icon-72x72.png',
-          data: data,
-          tag: data?.tag || 'general',
-        };
-
-        new Notification(notification.title, notificationOptions);
+    const checkSupport = async () => {
+      const browserSupported = checkPushSupport();
+      if (!browserSupported) {
+        if (mounted) setIsSupported(false);
+        return;
       }
-    });
 
-    return () => unsubscribe();
+      const messagingSupported = await isMessagingSupported();
+      if (mounted) setIsSupported(messagingSupported);
+    };
+
+    checkSupport();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let unsubscribe;
+
+    const setupMessageListener = async () => {
+      const messaging = await getMessagingInstance();
+      if (!messaging) return;
+
+      unsubscribe = onMessage(messaging, (payload) => {
+        const { notification, data } = payload;
+
+        if (notification && Notification.permission === 'granted') {
+          const notificationOptions = {
+            body: notification.body,
+            icon: '/icons/icon-192x192.png',
+            badge: '/icons/icon-72x72.png',
+            data: data,
+            tag: data?.tag || 'general',
+          };
+
+          new Notification(notification.title, notificationOptions);
+        }
+      });
+    };
+
+    if (isSupported) {
+      setupMessageListener();
+    }
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [isSupported]);
 
   const requestPermission = useCallback(async () => {
@@ -60,6 +93,12 @@ export function usePushNotifications() {
 
       if (result !== 'granted') {
         setError('Notification permission denied');
+        return null;
+      }
+
+      const messaging = await getMessagingInstance();
+      if (!messaging) {
+        setError('Messaging is not supported');
         return null;
       }
 
@@ -90,8 +129,15 @@ export function usePushNotifications() {
 
       try {
         const subscribeFn = httpsCallable(functions, 'subscribeToTopic');
+        const messaging = await getMessagingInstance();
+
+        let effectiveToken = token;
+        if (!effectiveToken && messaging) {
+          effectiveToken = await getToken(messaging, { vapidKey: VAPID_KEY });
+        }
+
         await subscribeFn({
-          token: token || (await getToken(messaging, { vapidKey: VAPID_KEY })),
+          token: effectiveToken,
           topic,
         });
         return true;
@@ -127,7 +173,10 @@ export function usePushNotifications() {
 
   const unsubscribeAll = useCallback(async () => {
     try {
-      await deleteToken(messaging);
+      const messaging = await getMessagingInstance();
+      if (messaging) {
+        await deleteToken(messaging);
+      }
       setToken(null);
       return true;
     } catch (err) {

@@ -1,18 +1,21 @@
+import { memo } from 'react';
+
 const TABS = [
   {
     id: 'map',
     label: 'Map',
     icon: (active) => (
       <svg
-        width="20"
-        height="20"
+        width="22"
+        height="22"
         viewBox="0 0 24 24"
-        fill="none"
-        stroke={active ? '#e63946' : '#78716c'}
+        fill={active ? 'currentColor' : 'none'}
+        stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
         aria-hidden="true"
+        className={active ? 'text-accent' : 'text-textLight'}
       >
         <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
         <line x1="8" y1="2" x2="8" y2="18" />
@@ -25,17 +28,18 @@ const TABS = [
     label: 'Feed',
     icon: (active) => (
       <svg
-        width="20"
-        height="20"
+        width="22"
+        height="22"
         viewBox="0 0 24 24"
-        fill="none"
-        stroke={active ? '#e63946' : '#78716c'}
+        fill={active ? 'currentColor' : 'none'}
+        stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
         aria-hidden="true"
+        className={active ? 'text-accent' : 'text-textLight'}
       >
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
       </svg>
     ),
   },
@@ -44,15 +48,16 @@ const TABS = [
     label: 'Weather',
     icon: (active) => (
       <svg
-        width="20"
-        height="20"
+        width="22"
+        height="22"
         viewBox="0 0 24 24"
-        fill="none"
-        stroke={active ? '#e63946' : '#78716c'}
+        fill={active ? 'currentColor' : 'none'}
+        stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
         aria-hidden="true"
+        className={active ? 'text-accent' : 'text-textLight'}
       >
         <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z" />
       </svg>
@@ -63,15 +68,16 @@ const TABS = [
     label: 'Profile',
     icon: (active) => (
       <svg
-        width="20"
-        height="20"
+        width="22"
+        height="22"
         viewBox="0 0 24 24"
-        fill="none"
-        stroke={active ? '#e63946' : '#78716c'}
+        fill={active ? 'currentColor' : 'none'}
+        stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
         aria-hidden="true"
+        className={active ? 'text-accent' : 'text-textLight'}
       >
         <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
         <circle cx="12" cy="7" r="4" />
@@ -80,35 +86,35 @@ const TABS = [
   },
 ];
 
-export default function TabNavigation({ activeTab, onTabChange }) {
+export default memo(function Sidebar({ activeTab, onTabChange }) {
   return (
-    <nav
-      className="sticky top-[56px] z-40 bg-white border-b border-border/60"
-      aria-label="Main navigation"
-    >
-      <div className="max-w-[1400px] mx-auto px-3 lg:px-6 flex" role="tablist">
+    <aside className="hidden lg:flex flex-col w-56 bg-white border-r border-border/60 h-[calc(100vh-56px)] sticky top-[56px]">
+      <nav aria-label="Desktop navigation" className="flex flex-col py-4">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
-              role="tab"
-              aria-selected={isActive}
-              aria-controls={`tabpanel-${tab.id}`}
               onClick={() => onTabChange(tab.id)}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-xs font-semibold transition-all relative ${
-                isActive ? 'text-accentDark' : 'text-textLight hover:text-text'
+              className={`flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all relative ${
+                isActive
+                  ? 'text-accentDark bg-accent/5'
+                  : 'text-textLight hover:text-text hover:bg-stone-50'
               }`}
             >
               {tab.icon(isActive)}
               <span className="tracking-wide">{tab.label}</span>
               {isActive && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-accent rounded-full" />
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-accent rounded-r-full" />
               )}
             </button>
           );
         })}
+      </nav>
+
+      <div className="mt-auto p-4 border-t border-border/60">
+        <p className="text-[10px] text-textLight/60 text-center">BANTAYOG ALERT v1.0</p>
       </div>
-    </nav>
+    </aside>
   );
-}
+});

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, lazy, Suspense, useTransition } from 'react';
 import Header from './components/Layout/Header';
+import Sidebar from './components/Layout/Sidebar';
 import TabNavigation from './components/Layout/TabNavigation';
 import Footer from './components/Layout/Footer';
 import LoadingSpinner from './components/Common/LoadingSpinner';
@@ -118,26 +119,38 @@ function AppContent() {
     <div className="min-h-screen bg-bg flex flex-col">
       <OfflineIndicator />
       <Header onProfileClick={handleOpenProfileTab} />
-      <TabNavigation activeTab={activeTab} onTabChange={changeTab} />
 
-      <main className="flex-1 flex flex-col min-h-0" id={`tabpanel-${activeTab}`}>
-        <Suspense
-          fallback={
-            <div className="h-[calc(100vh-112px)] flex items-center justify-center">
-              <LoadingSpinner />
-            </div>
-          }
-        >
-          {renderTab()}
-        </Suspense>
-      </main>
+      {/* Desktop Sidebar - hidden on mobile */}
+      <div className="hidden lg:block">
+        <Sidebar activeTab={activeTab} onTabChange={changeTab} />
+      </div>
 
-      {activeTab !== 'profile' && <Footer />}
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-h-0 lg:flex-row">
+        {/* Mobile Tab Navigation - hidden on desktop */}
+        <div className="lg:hidden">
+          <TabNavigation activeTab={activeTab} onTabChange={changeTab} />
+        </div>
+
+        <main className="flex-1 flex flex-col min-h-0" id={`tabpanel-${activeTab}`}>
+          <Suspense
+            fallback={
+              <div className="h-[calc(100vh-112px)] lg:h-[calc(100vh-56px)] flex items-center justify-center">
+                <LoadingSpinner />
+              </div>
+            }
+          >
+            {renderTab()}
+          </Suspense>
+        </main>
+      </div>
+
+      {activeTab !== 'profile' && <Footer className="lg:hidden" />}
 
       {/* Emergency Report Button */}
       <button
         onClick={handleOpenReportModal}
-        className="fixed bottom-6 right-4 z-50 flex items-center gap-2 report-btn-glow text-white rounded-full emergency-pulse transition-all duration-200 px-5 py-3.5 sm:px-6"
+        className="fixed bottom-6 right-4 lg:right-[calc(8rem+1rem)] z-50 flex items-center gap-2 report-btn-glow text-white rounded-full emergency-pulse transition-all duration-200 px-5 py-3.5 sm:px-6"
         aria-label="Report a hazard"
       >
         <svg

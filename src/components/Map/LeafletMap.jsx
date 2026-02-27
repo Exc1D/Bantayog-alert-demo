@@ -62,22 +62,48 @@ function TileErrorHandler({ onTileError }) {
 // Component to handle map resize when container size changes
 function MapResizeHandler() {
   const map = useMap();
+  const containerRef = useRef(null);
 
   useEffect(() => {
-    // Invalidate size after a short delay to ensure container is properly sized
-    const timer = setTimeout(() => {
-      map.invalidateSize();
-    }, 100);
+    // Get the map container element
+    const container = map.getContainer();
+    containerRef.current = container;
 
-    // Also invalidate on window resize
-    const handleResize = () => {
+    // Use requestAnimationFrame for initial sizing - more reliable than setTimeout
+    let rafId = requestAnimationFrame(() => {
       map.invalidateSize();
+    });
+
+    // Debounce helper for resize events
+    let resizeTimeout = null;
+    const debouncedResize = () => {
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+      resizeTimeout = setTimeout(() => {
+        map.invalidateSize();
+      }, 150);
     };
-    window.addEventListener('resize', handleResize);
+
+    // Use ResizeObserver to watch for container size changes (more efficient than window resize)
+    let resizeObserver = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(debouncedResize);
+      resizeObserver.observe(container);
+    }
+
+    // Also listen for window resize as fallback (with debounce)
+    window.addEventListener('resize', debouncedResize);
 
     return () => {
-      clearTimeout(timer);
-      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(rafId);
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+      window.removeEventListener('resize', debouncedResize);
     };
   }, [map]);
 

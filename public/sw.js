@@ -72,6 +72,9 @@ self.addEventListener('fetch', (event) => {
               trimCache(TILE_CACHE, MAX_TILE_CACHE_SIZE);
             }
             return response;
+          }).catch(() => {
+            // If cache+fetch both fail, return empty response to prevent broken images
+            return new Response('', { status: 408, statusText: 'Tile unavailable' });
           });
         });
       })

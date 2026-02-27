@@ -67,10 +67,10 @@ export function useAuth() {
     await setDoc(doc(db, 'users', credential.user.uid), {
       userId: credential.user.uid,
       email,
-      name,
+      displayName: name,
       photoURL: '',
       municipality: municipality || '',
-      role: 'citizen',
+      role: 'user',
       createdAt: serverTimestamp(),
       lastActive: serverTimestamp(),
       stats: {
@@ -91,7 +91,7 @@ export function useAuth() {
         eventType: AuditEventType.PROFILE_UPDATE,
         userId: credential.user.uid,
         userEmail: email,
-        userRole: 'citizen',
+        userRole: 'user',
         targetType: 'user',
         targetId: credential.user.uid,
         metadata: { action: 'account_created' },

@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import DisasterMarker from './DisasterMarker';
 import MapControls from './MapControls';
+import MapFlyToLocation from './MapFlyToLocation';
 import { MAP_CENTER, MAP_ZOOM, MAP_MAX_ZOOM, MAP_MIN_ZOOM } from '../../utils/constants';
 
 // Fix default marker icon issue in Leaflet + Webpack/Vite
@@ -245,6 +246,7 @@ export default function LeafletMap({ reports = [], onReportClick }) {
         </MarkerClusterGroup>
 
         <MapRefCapture mapRef={mapRef} />
+        <MapFlyToLocation municipality={filters.municipality} />
       </MapContainer>
     </div>
   );

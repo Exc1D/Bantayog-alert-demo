@@ -6,35 +6,128 @@ export const MAP_MIN_ZOOM = 8;
 export const PROVINCE = 'Camarines Norte';
 export const TIMEZONE = 'Asia/Manila';
 
-export const MUNICIPALITIES = [
-  'Basud',
-  'Capalonga',
-  'Daet',
-  'Jose Panganiban',
-  'Labo',
-  'Mercedes',
-  'Paracale',
-  'San Lorenzo Ruiz',
-  'San Vicente',
-  'Santa Elena',
-  'Talisay',
-  'Vinzons',
+const MUNICIPALITY_DATA = [
+  {
+    name: 'Basud',
+    lat: 14.0669,
+    lng: 122.9686,
+    bounds: [
+      [13.98, 122.88],
+      [14.12, 123.05],
+    ],
+  },
+  {
+    name: 'Capalonga',
+    lat: 14.3333,
+    lng: 122.4833,
+    bounds: [
+      [14.25, 122.35],
+      [14.42, 122.58],
+    ],
+  },
+  {
+    name: 'Daet',
+    lat: 14.1122,
+    lng: 122.9553,
+    bounds: [
+      [14.06, 122.88],
+      [14.18, 123.05],
+    ],
+  },
+  {
+    name: 'Jose Panganiban',
+    lat: 14.2944,
+    lng: 122.6931,
+    bounds: [
+      [14.22, 122.6],
+      [14.37, 122.78],
+    ],
+  },
+  {
+    name: 'Labo',
+    lat: 14.15,
+    lng: 122.8,
+    bounds: [
+      [14.03, 122.65],
+      [14.25, 122.92],
+    ],
+  },
+  {
+    name: 'Mercedes',
+    lat: 14.1167,
+    lng: 123.0167,
+    bounds: [
+      [14.06, 122.95],
+      [14.18, 123.12],
+    ],
+  },
+  {
+    name: 'Paracale',
+    lat: 14.2833,
+    lng: 122.7333,
+    bounds: [
+      [14.22, 122.67],
+      [14.35, 122.82],
+    ],
+  },
+  {
+    name: 'San Lorenzo Ruiz',
+    lat: 14.0833,
+    lng: 122.85,
+    bounds: [
+      [14.02, 122.78],
+      [14.13, 122.93],
+    ],
+  },
+  {
+    name: 'San Vicente',
+    lat: 14.1,
+    lng: 122.8833,
+    bounds: [
+      [14.04, 122.82],
+      [14.15, 122.95],
+    ],
+  },
+  {
+    name: 'Santa Elena',
+    lat: 14.1667,
+    lng: 122.4667,
+    bounds: [
+      [14.08, 122.35],
+      [14.25, 122.58],
+    ],
+  },
+  {
+    name: 'Talisay',
+    lat: 14.1333,
+    lng: 122.9333,
+    bounds: [
+      [14.07, 122.86],
+      [14.18, 122.97],
+    ],
+  },
+  {
+    name: 'Vinzons',
+    lat: 14.1833,
+    lng: 122.9167,
+    bounds: [
+      [14.14, 122.83],
+      [14.25, 122.98],
+    ],
+  },
 ];
 
-export const MUNICIPALITY_COORDS = {
-  Basud: { lat: 14.0669, lng: 122.9686 },
-  Capalonga: { lat: 14.3333, lng: 122.4833 },
-  Daet: { lat: 14.1122, lng: 122.9553 },
-  'Jose Panganiban': { lat: 14.2944, lng: 122.6931 },
-  Labo: { lat: 14.15, lng: 122.8 },
-  Mercedes: { lat: 14.1167, lng: 123.0167 },
-  Paracale: { lat: 14.2833, lng: 122.7333 },
-  'San Lorenzo Ruiz': { lat: 14.0833, lng: 122.85 },
-  'San Vicente': { lat: 14.1, lng: 122.8833 },
-  'Santa Elena': { lat: 14.1667, lng: 122.4667 },
-  Talisay: { lat: 14.1333, lng: 122.9333 },
-  Vinzons: { lat: 14.1833, lng: 122.9167 },
-};
+export const MUNICIPALITIES = MUNICIPALITY_DATA.map((m) => m.name);
+
+export const MUNICIPALITY_COORDS = MUNICIPALITY_DATA.reduce((acc, m) => {
+  acc[m.name] = { lat: m.lat, lng: m.lng };
+  return acc;
+}, {});
+
+export const MUNICIPALITY_BOUNDS = MUNICIPALITY_DATA.reduce((acc, m) => {
+  acc[m.name] = m.bounds;
+  return acc;
+}, {});
 
 export const SEVERITY_COLORS = {
   minor: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-500' },

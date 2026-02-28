@@ -75,11 +75,11 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'ma
 
       {/* Modal Content */}
       <div
-        className={`relative bg-white ${maxWidth} w-full max-h-[92vh] sm:max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-xl shadow-dark animate-slide-up`}
+        className={`relative bg-white dark:bg-dark-card ${maxWidth} w-full max-h-[92vh] sm:max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-xl shadow-dark animate-slide-up`}
       >
         {/* Header */}
         {title && (
-          <div className="sticky top-0 bg-primary text-white px-5 py-3.5 flex items-center justify-between rounded-t-2xl sm:rounded-t-xl z-10">
+          <div className="sticky top-0 bg-primary dark:bg-secondary text-white px-5 py-3.5 flex items-center justify-between rounded-t-2xl sm:rounded-t-xl z-10">
             <h2 className="text-base font-bold tracking-wide">{title}</h2>
             <button
               onClick={onClose}

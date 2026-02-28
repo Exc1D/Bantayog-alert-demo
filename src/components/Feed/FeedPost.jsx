@@ -22,10 +22,10 @@ function SeverityBadge({ severity }) {
 
 function StatusBadge({ status }) {
   const styles = {
-    pending: 'bg-stone-200 text-stone-700',
-    verified: 'bg-blue-100 text-blue-700',
-    rejected: 'bg-red-100 text-red-700',
-    resolved: 'bg-emerald-100 text-emerald-700',
+    pending: 'bg-stone-200 text-stone-700 dark:bg-stone-700 dark:text-stone-300',
+    verified: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
+    rejected: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
+    resolved: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400',
   };
   return (
     <span
@@ -54,7 +54,7 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
 
   return (
     <div
-      className={`bg-white rounded-xl mb-3 shadow-card overflow-hidden hover:shadow-card-hover transition-shadow ${SEVERITY_BORDER[severity] || ''} ${isCritical ? 'critical-glow' : ''} status-stripe-${status}`}
+      className={`bg-white dark:bg-dark-card rounded-xl mb-3 shadow-card overflow-hidden hover:shadow-card-hover transition-shadow ${SEVERITY_BORDER[severity] || ''} ${isCritical ? 'critical-glow' : ''} status-stripe-${status}`}
     >
       {/* Resolved Banner */}
       {status === 'resolved' && (
@@ -69,7 +69,7 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-lg">{disasterType.icon}</span>
-              <span className="font-bold text-sm uppercase tracking-wide truncate">
+              <span className="font-bold text-sm uppercase tracking-wide truncate dark:text-dark-text">
                 {disasterType.label}
               </span>
               {status === 'verified' && (
@@ -87,7 +87,7 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
                 </svg>
               )}
             </div>
-            <div className="text-xs text-textLight mt-1 flex items-center gap-1">
+            <div className="text-xs text-textLight dark:text-dark-textLight mt-1 flex items-center gap-1">
               <svg
                 aria-hidden="true"
                 width="12"
@@ -105,7 +105,7 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
                 {report.location?.barangay && `, ${report.location.barangay}`}
               </span>
             </div>
-            <div className="text-[11px] text-textMuted mt-0.5 flex items-center gap-1.5">
+            <div className="text-[11px] text-textMuted dark:text-dark-textMuted mt-0.5 flex items-center gap-1.5">
               <span>{formatTimeAgo(report.timestamp)}</span>
               <span className="text-border">&bull;</span>
               <span>{report.reporter?.name || 'Anonymous'}</span>
@@ -151,27 +151,27 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
 
       {/* Content */}
       <div className="px-3.5 py-3">
-        <p className="text-sm leading-relaxed">{report.disaster?.description}</p>
+        <p className="text-sm leading-relaxed dark:text-dark-text">{report.disaster?.description}</p>
 
         {/* Type-specific details */}
         {report.disaster?.waterLevel && (
-          <div className="bg-blue-50 border border-blue-100 rounded-lg p-2 mt-2.5 text-xs flex items-center gap-2">
-            <span className="font-bold text-blue-700">Water Level</span>
-            <span className="text-blue-600">{report.disaster.waterLevel}cm</span>
+          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 rounded-lg p-2 mt-2.5 text-xs flex items-center gap-2">
+            <span className="font-bold text-blue-700 dark:text-blue-400">Water Level</span>
+            <span className="text-blue-600 dark:text-blue-400">{report.disaster.waterLevel}cm</span>
           </div>
         )}
 
         {report.disaster?.windSpeed && (
-          <div className="bg-cyan-50 border border-cyan-100 rounded-lg p-2 mt-2.5 text-xs flex items-center gap-2">
-            <span className="font-bold text-cyan-700">Wind Speed</span>
-            <span className="text-cyan-600">{report.disaster.windSpeed} kph</span>
+          <div className="bg-cyan-50 dark:bg-cyan-950/30 border border-cyan-100 dark:border-cyan-900/40 rounded-lg p-2 mt-2.5 text-xs flex items-center gap-2">
+            <span className="font-bold text-cyan-700 dark:text-cyan-400">Wind Speed</span>
+            <span className="text-cyan-600 dark:text-cyan-400">{report.disaster.windSpeed} kph</span>
           </div>
         )}
 
         {report.disaster?.casualties > 0 && (
-          <div className="bg-red-50 border border-red-100 rounded-lg p-2 mt-2.5 text-xs flex items-center gap-2">
-            <span className="font-bold text-red-700">Casualties</span>
-            <span className="text-red-600">{report.disaster.casualties}</span>
+          <div className="bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/40 rounded-lg p-2 mt-2.5 text-xs flex items-center gap-2">
+            <span className="font-bold text-red-700 dark:text-red-400">Casualties</span>
+            <span className="text-red-600 dark:text-red-400">{report.disaster.casualties}</span>
           </div>
         )}
 
@@ -181,7 +181,7 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
             {report.disaster.tags.map((tag) => (
               <span
                 key={tag}
-                className="bg-stone-100 text-stone-500 text-[10px] px-2 py-0.5 rounded-full font-medium"
+                className="bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 text-[10px] px-2 py-0.5 rounded-full font-medium"
               >
                 #{tag}
               </span>
@@ -191,7 +191,7 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
 
         {/* Weather Context */}
         {report.weatherContext && (
-          <div className="bg-stone-50 border border-stone-200 rounded-lg p-2 mt-2.5 text-[11px] text-textLight">
+          <div className="bg-stone-50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700 rounded-lg p-2 mt-2.5 text-[11px] text-textLight dark:text-dark-textLight">
             <span className="font-semibold">Weather:</span> {report.weatherContext.condition},{' '}
             {report.weatherContext.temperature}&deg;C
             {report.weatherContext.windSpeed
@@ -242,7 +242,7 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
       />
 
       {showComments && (
-        <div className="p-3 border-t border-stone-100 bg-stone-50">
+        <div className="p-3 border-t border-stone-100 dark:border-dark-border bg-stone-50 dark:bg-stone-800/50">
           <p className="text-[11px] text-textMuted text-center">Comments coming soon</p>
         </div>
       )}

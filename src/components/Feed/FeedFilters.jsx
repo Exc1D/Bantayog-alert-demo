@@ -49,12 +49,12 @@ export default function FeedFilters({ filters, onFilterChange }) {
     'flex-1 min-w-[130px] p-2 border border-stone-300 dark:border-stone-600 rounded-lg text-xs font-medium bg-white dark:bg-dark-card text-text dark:text-dark-text focus:ring-2 focus:ring-accent/30 focus:border-accent';
 
   const searchClass =
-    'flex-1 min-w-[150px] p-2 border border-stone-300 dark:border-stone-600 rounded-lg text-xs font-medium bg-white dark:bg-dark-card text-text dark:text-dark-text focus:ring-2 focus:ring-accent/30 focus:border-accent placeholder:text-textMuted dark:placeholder:text-dark-textMuted';
+    'w-full p-2 border border-stone-300 dark:border-stone-600 rounded-lg text-xs font-medium bg-white dark:bg-dark-card text-text dark:text-dark-text focus:ring-2 focus:ring-accent/30 focus:border-accent placeholder:text-textMuted dark:placeholder:text-dark-textMuted';
 
   return (
     <div className="bg-white dark:bg-dark-card rounded-xl p-3 shadow-card mb-3 border border-stone-100 dark:border-dark-border">
-      <div className="flex gap-2 flex-wrap">
-        <div className="relative flex-1 min-w-[150px]">
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="relative flex-1 min-w-0">
           <svg
             className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted dark:text-dark-textMuted"
             width="16"
@@ -101,30 +101,32 @@ export default function FeedFilters({ filters, onFilterChange }) {
           )}
         </div>
 
-        <select
-          aria-label="Filter by municipality"
-          className={selectClass}
-          value={filters.municipality || 'all'}
-          onChange={(e) => handleChange('municipality', e.target.value)}
-        >
-          <option value="all">All Municipalities</option>
-          {MUNICIPALITIES.map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </select>
+        <div className="flex gap-2">
+          <select
+            aria-label="Filter by municipality"
+            className={selectClass}
+            value={filters.municipality || 'all'}
+            onChange={(e) => handleChange('municipality', e.target.value)}
+          >
+            <option value="all">All Municipalities</option>
+            {MUNICIPALITIES.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </select>
 
-        <select
-          aria-label="Sort reports"
-          className={selectClass}
-          value={filters.sort || 'recent'}
-          onChange={(e) => handleChange('sort', e.target.value)}
-        >
-          <option value="recent">Most Recent</option>
-          <option value="upvoted">Most Upvoted</option>
-          <option value="critical">Most Critical</option>
-        </select>
+          <select
+            aria-label="Sort reports"
+            className={selectClass}
+            value={filters.sort || 'recent'}
+            onChange={(e) => handleChange('sort', e.target.value)}
+          >
+            <option value="recent">Most Recent</option>
+            <option value="upvoted">Most Upvoted</option>
+            <option value="critical">Most Critical</option>
+          </select>
+        </div>
       </div>
     </div>
   );

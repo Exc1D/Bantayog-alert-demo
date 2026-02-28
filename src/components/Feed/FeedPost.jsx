@@ -243,7 +243,7 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
 
       {showComments && (
         <div className="p-3 border-t border-stone-100 dark:border-dark-border bg-stone-50 dark:bg-stone-800/50">
-          <p className="text-[11px] text-textMuted text-center">Comments coming soon</p>
+          <p className="text-[11px] text-textMuted dark:text-dark-textMuted text-center">Comments coming soon</p>
         </div>
       )}
     </div>

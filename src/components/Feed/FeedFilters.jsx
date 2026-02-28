@@ -101,7 +101,7 @@ export default function FeedFilters({ filters, onFilterChange }) {
           )}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <select
             aria-label="Filter by municipality"
             className={selectClass}

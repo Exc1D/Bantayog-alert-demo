@@ -11,7 +11,6 @@ const TILE_HOSTNAMES = [
   'tile.openstreetmap.org',
   'basemaps.cartocdn.com',
   'arcgisonline.com',
-  'gibs.earthdata.nasa.gov',
 ];
 
 const OFFLINE_FALLBACKS = {

@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { MUNICIPALITIES } from '../../utils/constants';
-import { yesterdayISO } from '../../utils/date';
-
 const LAYERS = [
   { id: 'streets', name: 'Streets' },
-  { id: 'satellite', name: 'NASA Satellite' },
+  { id: 'satellite', name: 'Satellite' },
 ];
 
 export default function MapControls({
@@ -13,8 +11,6 @@ export default function MapControls({
   reportCount,
   activeLayer,
   onLayerChange,
-  nasaDate,
-  onNasaDateChange,
 }) {
   const [showLegend, setShowLegend] = useState(false);
 
@@ -63,19 +59,6 @@ export default function MapControls({
               </button>
             ))}
           </div>
-
-          {/* NASA date picker — shown only when satellite layer is active */}
-          {activeLayer === 'satellite' && (
-            <input
-              type="date"
-              aria-label="NASA imagery date"
-              value={nasaDate}
-              min="2000-02-24"
-              max={yesterdayISO()}
-              onChange={(e) => onNasaDateChange?.(e.target.value)}
-              className={selectClass}
-            />
-          )}
 
           {/* Legend Toggle */}
           <button

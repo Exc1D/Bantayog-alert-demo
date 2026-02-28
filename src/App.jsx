@@ -11,6 +11,7 @@ import OfflineIndicator from './components/Common/OfflineIndicator';
 import { AuthProvider } from './contexts/AuthContext';
 import { ReportsProvider } from './contexts/ReportsContext';
 import { ToastProvider } from './components/Common/Toast';
+import { ThemeProvider } from './contexts/ThemeContext';
 import SignUpPromptModal from './components/Common/SignUpPromptModal';
 
 const MapTab = lazy(() => import('./pages/MapTab'));
@@ -116,7 +117,14 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-bg flex flex-col">
+    <div className="min-h-screen bg-bg dark:bg-dark-bg flex flex-col transition-colors">
+      {/* Skip to main content link for accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded-lg focus:font-semibold focus:text-sm"
+      >
+        Skip to main content
+      </a>
       <OfflineIndicator />
       <Header onProfileClick={handleOpenProfileTab} />
 
@@ -124,13 +132,13 @@ function AppContent() {
       <Sidebar activeTab={activeTab} onTabChange={changeTab} />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-0 lg:ml-56">
+      <div className="flex-1 flex flex-col min-h-0 lg:ml-56" id="main-content">
         {/* Mobile Tab Navigation - hidden on desktop */}
         <div className="lg:hidden">
           <TabNavigation activeTab={activeTab} onTabChange={changeTab} />
         </div>
 
-        <main className="flex-1 flex flex-col min-h-0" id={`tabpanel-${activeTab}`}>
+        <main id={`tabpanel-${activeTab}`} className="flex-1 flex flex-col min-h-0">
           <Suspense
             fallback={
               <div className="h-[calc(100vh-112px)] lg:h-[calc(100vh-56px)] flex items-center justify-center">
@@ -194,13 +202,15 @@ function AppContent() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <ToastProvider>
-        <AuthProvider>
-          <ReportsProvider>
-            <AppContent />
-          </ReportsProvider>
-        </AuthProvider>
-      </ToastProvider>
+      <ThemeProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <ReportsProvider>
+              <AppContent />
+            </ReportsProvider>
+          </AuthProvider>
+        </ToastProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

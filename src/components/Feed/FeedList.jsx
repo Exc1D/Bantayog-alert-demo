@@ -1,5 +1,17 @@
 import FeedPost from './FeedPost';
 import LoadingSpinner from '../Common/LoadingSpinner';
+import Skeleton from '../Common/Skeleton';
+import EmptyState from '../Common/EmptyState';
+
+function FeedSkeleton() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <Skeleton key={i} variant="card" />
+      ))}
+    </div>
+  );
+}
 
 export default function FeedList({
   reports,
@@ -8,33 +20,33 @@ export default function FeedList({
   loadMore,
   onViewMap,
   onRequireSignUp,
+  searchQuery,
 }) {
   if (loading && reports.length === 0) {
-    return <LoadingSpinner text="Loading reports..." />;
+    return <FeedSkeleton />;
   }
 
   if (!loading && reports.length === 0) {
+    if (searchQuery) {
+      return (
+        <EmptyState
+          icon="search"
+          title="No Results Found"
+          description={`No hazard reports match "${searchQuery}". Try different keywords or adjust your filters.`}
+        />
+      );
+    }
     return (
-      <div className="bg-white rounded-xl p-8 text-center shadow-card border border-stone-100">
-        <div className="w-12 h-12 mx-auto mb-3 bg-stone-100 rounded-full flex items-center justify-center">
-          <svg
-            aria-hidden="true"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#a8a29e"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-        </div>
-        <h3 className="text-sm font-bold mb-1">No Reports Found</h3>
-        <p className="text-xs text-textLight">No hazard reports match your current filters.</p>
-      </div>
+      <EmptyState
+        icon="report"
+        title="No Reports Yet"
+        description="No hazard reports in your area. Be the first to report a hazard!"
+        action={
+          <button className="px-4 py-2 bg-accent text-white text-sm font-semibold rounded-lg hover:bg-accentDark transition-colors">
+            Report a Hazard
+          </button>
+        }
+      />
     );
   }
 
@@ -53,7 +65,7 @@ export default function FeedList({
         <div className="text-center py-3">
           <button
             onClick={loadMore}
-            className="px-5 py-2 bg-white rounded-lg shadow-card border border-stone-200 text-xs font-semibold text-textLight hover:text-text hover:border-stone-300 transition-all"
+            className="px-5 py-2 bg-white dark:bg-dark-card rounded-lg shadow-card border border-stone-200 dark:border-dark-border text-xs font-semibold text-textLight dark:text-dark-textLight hover:text-text dark:hover:text-dark-text hover:border-stone-300 dark:hover:border-dark-border transition-all"
           >
             Load More Reports
           </button>

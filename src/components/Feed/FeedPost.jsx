@@ -3,6 +3,7 @@ import { getDisasterType } from '../../data/disasterTypes';
 import { formatTimeAgo } from '../../utils/timeUtils';
 import EngagementButtons from './EngagementButtons';
 import { getSafeMediaUrls } from '../../utils/mediaSafety';
+import ShareButton from '../Common/ShareButton';
 
 function SeverityBadge({ severity }) {
   const styles = {
@@ -113,6 +114,7 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
           <div className="flex flex-col items-end gap-1 shrink-0">
             <SeverityBadge severity={severity} />
             <StatusBadge status={status} />
+            <ShareButton report={report} />
           </div>
         </div>
       </div>

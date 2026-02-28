@@ -1,13 +1,23 @@
 import { useState } from 'react';
 import WeatherCard from './WeatherCard';
 import { MUNICIPALITIES } from '../../utils/constants';
-import LoadingSpinner from '../Common/LoadingSpinner';
+import Skeleton from '../Common/Skeleton';
+
+function WeatherSkeleton() {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+      {Array.from({ length: MUNICIPALITIES.length }).map((_, i) => (
+        <Skeleton key={i} variant="weather" />
+      ))}
+    </div>
+  );
+}
 
 export default function WeatherGrid({ weatherData, loading }) {
   const [selectedMunicipality, setSelectedMunicipality] = useState(null);
 
   if (loading) {
-    return <LoadingSpinner text="Loading weather data..." />;
+    return <WeatherSkeleton />;
   }
 
   if (selectedMunicipality) {

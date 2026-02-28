@@ -151,7 +151,9 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
 
       {/* Content */}
       <div className="px-3.5 py-3">
-        <p className="text-sm leading-relaxed dark:text-dark-text">{report.disaster?.description}</p>
+        <p className="text-sm leading-relaxed dark:text-dark-text">
+          {report.disaster?.description}
+        </p>
 
         {/* Type-specific details */}
         {report.disaster?.waterLevel && (
@@ -164,7 +166,9 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
         {report.disaster?.windSpeed && (
           <div className="bg-cyan-50 dark:bg-cyan-950/30 border border-cyan-100 dark:border-cyan-900/40 rounded-lg p-2 mt-2.5 text-xs flex items-center gap-2">
             <span className="font-bold text-cyan-700 dark:text-cyan-400">Wind Speed</span>
-            <span className="text-cyan-600 dark:text-cyan-400">{report.disaster.windSpeed} kph</span>
+            <span className="text-cyan-600 dark:text-cyan-400">
+              {report.disaster.windSpeed} kph
+            </span>
           </div>
         )}
 
@@ -243,7 +247,9 @@ export default memo(function FeedPost({ report, onViewMap, onRequireSignUp }) {
 
       {showComments && (
         <div className="p-3 border-t border-stone-100 dark:border-dark-border bg-stone-50 dark:bg-stone-800/50">
-          <p className="text-[11px] text-textMuted dark:text-dark-textMuted text-center">Comments coming soon</p>
+          <p className="text-[11px] text-textMuted dark:text-dark-textMuted text-center">
+            Comments coming soon
+          </p>
         </div>
       )}
     </div>

@@ -83,7 +83,9 @@ export default function EngagementButtons({
         onClick={handleUpvote}
         disabled={isUpvoting}
         className={`${btnClass} ${
-          hasUpvoted ? 'bg-accent/10 text-accent' : 'hover:bg-stone-50 dark:hover:bg-stone-800/60 text-textLight dark:text-dark-textLight'
+          hasUpvoted
+            ? 'bg-accent/10 text-accent'
+            : 'hover:bg-stone-50 dark:hover:bg-stone-800/60 text-textLight dark:text-dark-textLight'
         }`}
       >
         <svg
@@ -102,7 +104,10 @@ export default function EngagementButtons({
         {report.engagement?.upvotes || 0}
       </button>
 
-      <button onClick={handleComments} className={`${btnClass} hover:bg-stone-50 dark:hover:bg-stone-800/60 text-textLight dark:text-dark-textLight`}>
+      <button
+        onClick={handleComments}
+        className={`${btnClass} hover:bg-stone-50 dark:hover:bg-stone-800/60 text-textLight dark:text-dark-textLight`}
+      >
         <svg
           aria-hidden="true"
           width="16"
@@ -140,7 +145,10 @@ export default function EngagementButtons({
         Map
       </button>
 
-      <button onClick={handleShare} className={`${btnClass} hover:bg-stone-50 dark:hover:bg-stone-800/60 text-textLight dark:text-dark-textLight`}>
+      <button
+        onClick={handleShare}
+        className={`${btnClass} hover:bg-stone-50 dark:hover:bg-stone-800/60 text-textLight dark:text-dark-textLight`}
+      >
         <svg
           aria-hidden="true"
           width="16"

@@ -1,10 +1,12 @@
 const VARIANTS = {
   primary: 'bg-accent text-white hover:bg-accentDark focus:ring-red-300',
-  secondary: 'bg-white text-text border border-border hover:bg-gray-50 focus:ring-gray-300 dark:bg-dark-card dark:text-dark-text dark:border-dark-border dark:hover:bg-stone-800',
+  secondary:
+    'bg-white text-text border border-border hover:bg-gray-50 focus:ring-gray-300 dark:bg-dark-card dark:text-dark-text dark:border-dark-border dark:hover:bg-stone-800',
   danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-300',
   success: 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-300',
   warning: 'bg-warning text-white hover:bg-amber-600 focus:ring-amber-300',
-  ghost: 'text-textLight hover:text-text hover:bg-stone-100 dark:text-dark-textLight dark:hover:text-dark-text dark:hover:bg-stone-800/60',
+  ghost:
+    'text-textLight hover:text-text hover:bg-stone-100 dark:text-dark-textLight dark:hover:text-dark-text dark:hover:bg-stone-800/60',
 };
 
 const SIZES = {

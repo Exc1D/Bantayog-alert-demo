@@ -98,11 +98,11 @@ export default function WeatherCard({ municipality, weather, forecast, compact =
     return (
       <div className="bg-white dark:bg-dark-card rounded-xl p-3 shadow-card border border-stone-100 dark:border-dark-border hover:shadow-card-hover transition-shadow">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold text-xs truncate">{municipality}</h3>
+          <h3 className="font-bold text-xs truncate dark:text-dark-text">{municipality}</h3>
           <span className="text-xl">{weatherIcon}</span>
         </div>
         <div className="flex items-baseline gap-0.5 mt-1">
-          <span className="text-xl font-bold">{weather.temperature}</span>
+          <span className="text-xl font-bold dark:text-dark-text">{weather.temperature}</span>
           <span className="text-xs text-textLight dark:text-dark-textLight">&deg;C</span>
         </div>
         <p className="text-[10px] text-textMuted dark:text-dark-textMuted capitalize truncate">
@@ -116,11 +116,11 @@ export default function WeatherCard({ municipality, weather, forecast, compact =
   return (
     <div className="bg-white dark:bg-dark-card rounded-xl shadow-card border border-stone-100 dark:border-dark-border overflow-hidden hover:shadow-card-hover transition-shadow">
       {/* Header */}
-      <div className="bg-primary text-white p-4">
+      <div className="bg-primary text-white p-4 dark:bg-dark-card dark:text-dark-text">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-bold text-base">{municipality}</h3>
-            <p className="text-xs text-white/50 capitalize">
+            <p className="text-xs text-white/50 capitalize dark:text-dark-textLight">
               {weather.description || weather.condition}
             </p>
           </div>
@@ -128,10 +128,12 @@ export default function WeatherCard({ municipality, weather, forecast, compact =
         </div>
         <div className="flex items-baseline gap-0.5 mt-2">
           <span className="text-3xl font-bold">{weather.temperature}</span>
-          <span className="text-sm text-white/60">&deg;C</span>
+          <span className="text-sm text-white/60 dark:text-dark-textLight">&deg;C</span>
         </div>
         {weather.feelsLike && (
-          <p className="text-[10px] text-white/40 mt-0.5">Feels like {weather.feelsLike}&deg;C</p>
+          <p className="text-[10px] text-white/40 mt-0.5 dark:text-dark-textMuted">
+            Feels like {weather.feelsLike}&deg;C
+          </p>
         )}
       </div>
 

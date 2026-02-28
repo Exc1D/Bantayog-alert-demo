@@ -66,6 +66,8 @@ export default function MapControls({
             onClick={() => setShowLegend(!showLegend)}
             className="text-[11px] font-medium border border-white/20 rounded-lg px-2 py-1.5 bg-white/10 text-white hover:bg-white/20 transition-colors"
             aria-label="Toggle legend"
+            aria-expanded={showLegend}
+            aria-controls="map-legend"
           >
             <svg
               width="14"
@@ -89,7 +91,7 @@ export default function MapControls({
 
         {/* Legend Dropdown */}
         {showLegend && (
-          <div className="mt-2 pt-2 border-t border-white/20">
+          <div id="map-legend" className="mt-2 pt-2 border-t border-white/20">
             <p className="text-[10px] text-white/50 uppercase tracking-wider font-semibold mb-2">
               Marker Legend
             </p>

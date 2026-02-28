@@ -177,7 +177,8 @@ self.addEventListener('fetch', (event) => {
 
   if (
     url.hostname.includes('tile.openstreetmap.org') ||
-    url.hostname.includes('basemaps.cartocdn.com')
+    url.hostname.includes('basemaps.cartocdn.com') ||
+    url.hostname.includes('arcgisonline.com')
   ) {
     event.respondWith(
       caches.open(TILE_CACHE).then((cache) =>

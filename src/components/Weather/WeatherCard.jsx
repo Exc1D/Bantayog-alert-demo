@@ -42,8 +42,8 @@ function MiniForecast({ forecast }) {
         5-Day Forecast
       </p>
       <div className="flex justify-between gap-1">
-        {displayForecast.map((day, idx) => (
-          <div key={idx} className="flex flex-col items-center">
+        {displayForecast.map((day) => (
+          <div key={day.date} className="flex flex-col items-center">
             <span className="text-[9px] font-medium text-textLight dark:text-dark-textLight">
               {getDayName(day.date)}
             </span>
@@ -68,10 +68,10 @@ function CompactForecast({ forecast }) {
 
   return (
     <div className="flex gap-1 mt-1">
-      {displayForecast.map((day, idx) => (
-        <div key={idx} className="flex flex-col items-center">
+      {displayForecast.map((day) => (
+        <div key={day.date} className="flex flex-col items-center">
           <span className="text-[8px] text-textMuted dark:text-dark-textMuted">
-            {getDayName(day.date).slice(0, 3)}
+            {getDayName(day.date)}
           </span>
           <span className="text-xs">{WEATHER_ICONS[day.icon] || '\u2601\uFE0F'}</span>
         </div>

@@ -146,8 +146,10 @@ export default function LeafletMap({ reports = [], onReportClick }) {
   const handleTileError = useCallback(() => {
     setCurrentTileIndex((prevIndex) => {
       if (prevIndex < TILE_PROVIDERS.length - 1) {
-        console.warn('Switching to fallback tile provider:', TILE_PROVIDERS[prevIndex + 1].name);
-        return prevIndex + 1;
+        const nextIndex = prevIndex + 1;
+        console.warn('Switching to fallback tile provider:', TILE_PROVIDERS[nextIndex].name);
+        setActiveLayer(TILE_PROVIDERS[nextIndex].name);
+        return nextIndex;
       }
       return prevIndex;
     });

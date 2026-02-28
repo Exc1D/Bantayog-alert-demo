@@ -318,7 +318,14 @@ export async function removeUpvote(reportId, userId) {
   });
 }
 
-export async function verifyReport(reportId, adminId, adminRole, notes = '', disasterType = null) {
+export async function verifyReport(
+  reportId,
+  adminId,
+  adminRole,
+  notes = '',
+  disasterType = null,
+  severity = null
+) {
   if (!adminId || !isAdminRole(adminRole)) {
     throw new Error('Admin privileges required to verify reports.');
   }
@@ -334,6 +341,10 @@ export async function verifyReport(reportId, adminId, adminRole, notes = '', dis
 
   if (disasterType) {
     updateData['disaster.type'] = disasterType;
+  }
+
+  if (severity) {
+    updateData['disaster.severity'] = severity;
   }
 
   await updateDoc(reportRef, updateData);

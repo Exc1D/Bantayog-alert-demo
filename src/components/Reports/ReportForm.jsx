@@ -1,20 +1,4 @@
-import { SEVERITY_LEVELS } from '../../utils/constants';
 import { containsXSS, truncateText } from '../../utils/sanitization';
-
-const SEVERITY_STYLES = {
-  critical: {
-    active: 'border-red-500 bg-red-50 text-red-800 ring-1 ring-red-200',
-    icon: '\u{1F534}',
-  },
-  moderate: {
-    active: 'border-amber-500 bg-amber-50 text-amber-800 ring-1 ring-amber-200',
-    icon: '\u{1F7E0}',
-  },
-  minor: {
-    active: 'border-green-500 bg-green-50 text-green-800 ring-1 ring-green-200',
-    icon: '\u{1F7E2}',
-  },
-};
 
 // Sanitize text for XSS but don't trim (to allow spaces during typing)
 const DANGEROUS_PATTERNS = [
@@ -61,37 +45,6 @@ export default function ReportForm({ formData, onChange }) {
 
   return (
     <div className="space-y-4">
-      {/* Severity */}
-      <fieldset>
-        <legend className="block text-xs font-bold text-textLight uppercase tracking-wider mb-2">
-          Severity Level <span className="text-accent">*</span>
-        </legend>
-        <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Severity level">
-          {SEVERITY_LEVELS.map((level) => {
-            const style = SEVERITY_STYLES[level];
-            return (
-              <button
-                key={level}
-                type="button"
-                role="radio"
-                aria-checked={formData.severity === level}
-                onClick={() => handleFieldChange('severity', level)}
-                className={`p-2.5 rounded-lg border-2 text-sm font-bold capitalize transition-all ${
-                  formData.severity === level
-                    ? style.active
-                    : 'border-stone-200 hover:border-stone-300 text-textLight'
-                }`}
-              >
-                <span className="mr-1" aria-hidden="true">
-                  {style.icon}
-                </span>{' '}
-                {level}
-              </button>
-            );
-          })}
-        </div>
-      </fieldset>
-
       {/* Description */}
       <div>
         <label

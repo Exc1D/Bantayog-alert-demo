@@ -8,6 +8,7 @@ import Button from '../Common/Button';
 import { getSafeMediaUrls } from '../../utils/mediaSafety';
 import RequirePermission, { AccessDenied } from '../Common/RequirePermission';
 import { PERMISSIONS } from '../../utils/rbac';
+import { SEVERITY_OPTIONS } from '../../utils/constants';
 
 const SEV_STYLES = {
   critical: 'bg-red-600 text-white',
@@ -23,6 +24,9 @@ export default function VerificationPanel({ report, onDone }) {
   const [selectedType, setSelectedType] = useState(
     report.disaster?.type !== 'pending' ? report.disaster?.type : ''
   );
+  const [selectedSeverity, setSelectedSeverity] = useState(
+    report.disaster?.severity !== 'pending' ? report.disaster?.severity : ''
+  );
   const [processing, setProcessing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { user, userProfile } = useAuthContext();
@@ -36,9 +40,20 @@ export default function VerificationPanel({ report, onDone }) {
       addToast('Please classify the hazard/disaster type before verifying', 'warning');
       return;
     }
+    if (!selectedSeverity) {
+      addToast('Please select the severity level before verifying', 'warning');
+      return;
+    }
     setProcessing(true);
     try {
-      await verifyReport(report.id, user.uid, userProfile?.role, notes, selectedType);
+      await verifyReport(
+        report.id,
+        user.uid,
+        userProfile?.role,
+        notes,
+        selectedType,
+        selectedSeverity
+      );
       addToast('Report verified and classified successfully', 'success');
       onDone();
     } catch (error) {
@@ -163,6 +178,45 @@ export default function VerificationPanel({ report, onDone }) {
         )}
       </div>
 
+      {/* Severity Level Classification */}
+      <div>
+        <label
+          id="severity-level-label"
+          className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5"
+        >
+          Set Severity Level <span className="text-accent">*</span>
+        </label>
+        <div
+          className="grid grid-cols-3 gap-2"
+          role="radiogroup"
+          aria-labelledby="severity-level-label"
+        >
+          {SEVERITY_OPTIONS.map((level) => (
+            <button
+              key={level.id}
+              type="button"
+              role="radio"
+              aria-checked={selectedSeverity === level.id}
+              onClick={() => setSelectedSeverity(level.id)}
+              className={`p-2.5 rounded-lg border-2 text-sm font-bold capitalize transition-all ${
+                selectedSeverity === level.id
+                  ? level.id === 'critical'
+                    ? 'border-red-500 bg-red-50 text-red-800 ring-1 ring-red-200'
+                    : level.id === 'moderate'
+                      ? 'border-amber-500 bg-amber-50 text-amber-800 ring-1 ring-amber-200'
+                      : 'border-green-500 bg-green-50 text-green-800 ring-1 ring-green-200'
+                  : 'border-stone-200 hover:border-stone-300 text-textLight'
+              }`}
+            >
+              <span className="mr-1" aria-hidden="true">
+                {level.icon}
+              </span>{' '}
+              {level.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Admin Notes */}
       <div>
         <label className="block text-xs font-bold text-textLight uppercase tracking-wider mb-1.5">
@@ -186,7 +240,7 @@ export default function VerificationPanel({ report, onDone }) {
           variant="success"
           onClick={handleVerify}
           loading={processing}
-          disabled={!selectedType}
+          disabled={!selectedType || !selectedSeverity}
           className="flex-1"
         >
           Verify Report

@@ -41,6 +41,11 @@ service cloud.firestore {
       return data != null && data.isVerified == true;
     }
 
+    function canCreateReports() {
+      let role = userRole();
+      return role == 'user' || role == 'moderator' || isAdmin() || role == '';
+    }
+
     // Valid municipalities in Camarines Norte
     function isValidMunicipality(municipality) {
       return municipality in [
@@ -59,9 +64,9 @@ service cloud.firestore {
       ];
     }
 
-    // Valid severity levels
+    // Valid severity levels (include 'pending' for initial submission by users)
     function isValidSeverity(severity) {
-      return severity in ['critical', 'moderate', 'minor'];
+      return severity in ['critical', 'moderate', 'minor', 'pending'];
     }
 
     // Valid verification statuses
@@ -139,7 +144,9 @@ service cloud.firestore {
       allow read: if true;
 
       // Create: Authenticated users can submit reports with full validation
+      // Allow users with 'user' role, moderators, admins, or no role (anonymous/guest users)
       allow create: if isSignedIn()
+        && canCreateReports()
         && request.resource.data.reporter.userId == request.auth.uid
         && request.resource.data.keys().hasAll([
           'timestamp', 'reportType', 'location', 'disaster',

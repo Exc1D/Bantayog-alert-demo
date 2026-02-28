@@ -88,10 +88,7 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
 
   // Auto-save draft when form data changes
   useEffect(() => {
-    if (
-      isOpen &&
-      (formData.severity || formData.description || formData.barangay || formData.street)
-    ) {
+    if (isOpen && (formData.description || formData.barangay || formData.street)) {
       const draftData = { reportType, formData, manualMunicipality, step };
       saveDraft(draftData);
     }
@@ -102,7 +99,7 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
     if (isOpen) {
       const draft = loadDraft();
       if (draft && draft.step) {
-        if (draft.formData?.severity || draft.formData?.description) {
+        if (draft.formData?.description) {
           setFormData(draft.formData || {});
           setReportType(draft.reportType || null);
           setManualMunicipality(draft.manualMunicipality || '');
@@ -136,7 +133,7 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
   };
 
   const handleEvidenceContinue = () => {
-    setFormData({ severity: '', description: '' });
+    setFormData((prev) => ({ ...prev, description: '' }));
     setStep(3);
   };
 
@@ -155,10 +152,6 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
     const sanitizedBarangay = sanitizeText(formData.barangay);
     const sanitizedStreet = sanitizeText(formData.street);
 
-    if (!formData.severity) {
-      addToast('What is the alert status?', 'warning');
-      return;
-    }
     if (!sanitizedDescription || sanitizedDescription.trim().length < 10) {
       addToast('What is happening? (at least 10 characters)', 'warning');
       return;
@@ -195,7 +188,7 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
         },
         disaster: {
           type: 'pending',
-          severity: formData.severity,
+          severity: 'pending',
           description: truncateText(sanitizedDescription, 2000),
           tags: [],
         },
@@ -250,9 +243,9 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
     <Modal isOpen={isOpen} onClose={handleClose} title={STEP_TITLES[step]}>
       {/* Progress Stepper */}
       <div className="mb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center">
           {STEPS.map((s, idx) => (
-            <div key={s.num} className="flex items-center flex-1">
+            <div key={s.num} className="flex items-center">
               <div className="flex flex-col items-center">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
@@ -284,7 +277,7 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
               </div>
               {idx < STEPS.length - 1 && (
                 <div
-                  className={`flex-1 h-0.5 mx-2 ${step > s.num ? 'bg-green-500' : 'bg-stone-200 dark:bg-stone-700'}`}
+                  className={`w-12 h-0.5 mx-2 ${step > s.num ? 'bg-green-500' : 'bg-stone-200 dark:bg-stone-700'}`}
                 />
               )}
             </div>
@@ -381,7 +374,6 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
                 loading={isSubmitting}
                 disabled={
                   isSubmitting ||
-                  !formData.severity ||
                   !formData.description ||
                   !effectiveLocation ||
                   !rateLimit.isAllowed

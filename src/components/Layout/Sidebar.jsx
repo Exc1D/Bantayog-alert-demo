@@ -4,7 +4,7 @@ import { TABS, SIDEBAR_WIDTH } from '../../config/tabs';
 export default memo(function Sidebar({ activeTab, onTabChange }) {
   return (
     <aside
-      className="hidden lg:flex flex-col bg-white border-r border-border/60 h-[calc(100vh-56px)] sticky top-[56px]"
+      className="hidden lg:flex flex-col bg-white border-r border-border/60 h-[calc(100vh-56px)] fixed top-[56px] left-0"
       style={{ width: SIDEBAR_WIDTH }}
     >
       <nav aria-label="Main navigation" className="flex flex-col py-4">

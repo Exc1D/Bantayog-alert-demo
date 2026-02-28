@@ -6,6 +6,7 @@ import L from 'leaflet';
 import DisasterMarker from './DisasterMarker';
 import MapControls from './MapControls';
 import { MAP_CENTER, MAP_ZOOM, MAP_MAX_ZOOM, MAP_MIN_ZOOM } from '../../utils/constants';
+import { yesterdayISO } from '../../utils/date';
 
 // Fix default marker icon issue in Leaflet + Webpack/Vite
 delete L.Icon.Default.prototype._getIconUrl;
@@ -28,8 +29,10 @@ const TILE_PROVIDERS = [
   },
   {
     name: 'satellite',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attribution: '&copy; Esri',
+    getUrl: (date) =>
+      `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${date}/GoogleMapsCompatible/{z}/{y}/{x}.jpg`,
+    attribution: 'Imagery courtesy <a href="https://earthdata.nasa.gov">NASA EOSDIS GIBS</a>',
+    maxNativeZoom: 9,
   },
   {
     name: 'cartodb-light',
@@ -128,6 +131,7 @@ export default function LeafletMap({ reports = [], onReportClick }) {
   const mapRef = useRef(null);
   const [currentTileIndex, setCurrentTileIndex] = useState(0);
   const [activeLayer, setActiveLayer] = useState('streets');
+  const [nasaDate, setNasaDate] = useState(() => yesterdayISO());
 
   const [filters, setFilters] = useState({
     municipality: 'all',
@@ -156,6 +160,7 @@ export default function LeafletMap({ reports = [], onReportClick }) {
   }, []);
 
   const currentTile = TILE_PROVIDERS[currentTileIndex];
+  const currentTileUrl = currentTile.getUrl ? currentTile.getUrl(nasaDate) : currentTile.url;
 
   const filteredReports = useMemo(() => {
     return reports.filter((report) => {
@@ -184,6 +189,8 @@ export default function LeafletMap({ reports = [], onReportClick }) {
         reportCount={filteredReports.length}
         activeLayer={activeLayer}
         onLayerChange={handleLayerChange}
+        nasaDate={nasaDate}
+        onNasaDateChange={setNasaDate}
       />
 
       {/* Location button — rendered outside MapContainer for precise positioning */}
@@ -219,14 +226,15 @@ export default function LeafletMap({ reports = [], onReportClick }) {
         <ZoomControl position="bottomleft" />
         <MapResizeHandler />
         <TileLayer
-          key={currentTile.name}
+          key={currentTile.getUrl ? `${currentTile.name}-${nasaDate}` : currentTile.name}
           attribution={currentTile.attribution}
-          url={currentTile.url}
+          url={currentTileUrl}
           keepBuffer={8}
           updateWhenZooming={false}
           updateWhenIdle={true}
           maxZoom={MAP_MAX_ZOOM}
           minZoom={MAP_MIN_ZOOM}
+          maxNativeZoom={currentTile.maxNativeZoom ?? MAP_MAX_ZOOM}
         />
         <TileErrorHandler onTileError={handleTileError} />
 

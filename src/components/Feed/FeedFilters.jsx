@@ -21,6 +21,7 @@ export default function FeedFilters({ filters, onFilterChange }) {
   const [searchInput, setSearchInput] = useState(filters.search || '');
   const debouncedSearch = useDebounce(searchInput, 300);
   const inputRef = useRef(null);
+  const isInitialized = useRef(false);
 
   const handleChange = useCallback(
     (key, value) => {
@@ -30,10 +31,10 @@ export default function FeedFilters({ filters, onFilterChange }) {
   );
 
   useEffect(() => {
-    setSearchInput(filters.search || '');
-  }, [filters.search]);
-
-  useEffect(() => {
+    if (!isInitialized.current) {
+      isInitialized.current = true;
+      return;
+    }
     if (debouncedSearch !== filters.search) {
       handleChange('search', debouncedSearch);
     }

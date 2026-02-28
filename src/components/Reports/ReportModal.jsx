@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Modal from '../Common/Modal';
 import Button from '../Common/Button';
 import { captureException } from '../../utils/sentry';
@@ -38,20 +38,26 @@ function loadDraft() {
     if (draft) {
       return JSON.parse(draft);
     }
-  } catch {}
+  } catch {
+    // Ignore localStorage errors
+  }
   return null;
 }
 
 function saveDraft(data) {
   try {
     localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
-  } catch {}
+  } catch {
+    // Ignore localStorage errors
+  }
 }
 
 function clearDraft() {
   try {
     localStorage.removeItem(DRAFT_KEY);
-  } catch {}
+  } catch {
+    // Ignore localStorage errors
+  }
 }
 
 export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitted }) {
@@ -107,7 +113,7 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
         }
       }
     }
-  }, [isOpen]);
+  }, [isOpen, addToast]);
 
   const municipality = location
     ? resolveMunicipality(location.lat, location.lng).municipality
@@ -242,6 +248,50 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={STEP_TITLES[step]}>
+      {/* Progress Stepper */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          {STEPS.map((s, idx) => (
+            <div key={s.num} className="flex items-center flex-1">
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
+                    step > s.num
+                      ? 'bg-green-500 text-white'
+                      : step === s.num
+                        ? 'bg-accent text-white'
+                        : 'bg-stone-200 text-stone-500 dark:bg-stone-700 dark:text-stone-400'
+                  }`}
+                >
+                  {step > s.num ? (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  ) : (
+                    s.num
+                  )}
+                </div>
+                <span className="text-[10px] mt-1 font-medium text-textLight dark:text-dark-textLight">
+                  {s.label}
+                </span>
+              </div>
+              {idx < STEPS.length - 1 && (
+                <div
+                  className={`flex-1 h-0.5 mx-2 ${step > s.num ? 'bg-green-500' : 'bg-stone-200 dark:bg-stone-700'}`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
       <FeatureFlag
         flag={FEATURE_FLAGS.NEW_REPORT_FLOW}
         fallback={

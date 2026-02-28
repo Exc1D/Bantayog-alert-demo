@@ -6,6 +6,7 @@ import L from 'leaflet';
 import DisasterMarker from './DisasterMarker';
 import MapControls from './MapControls';
 import { MAP_CENTER, MAP_ZOOM, MAP_MAX_ZOOM, MAP_MIN_ZOOM } from '../../utils/constants';
+import { yesterdayISO } from '../../utils/date';
 
 // Fix default marker icon issue in Leaflet + Webpack/Vite
 delete L.Icon.Default.prototype._getIconUrl;
@@ -30,8 +31,7 @@ const TILE_PROVIDERS = [
     name: 'satellite',
     getUrl: (date) =>
       `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${date}/GoogleMapsCompatible/{z}/{y}/{x}.jpg`,
-    attribution:
-      'Imagery courtesy <a href="https://earthdata.nasa.gov">NASA EOSDIS GIBS</a>',
+    attribution: 'Imagery courtesy <a href="https://earthdata.nasa.gov">NASA EOSDIS GIBS</a>',
     maxNativeZoom: 9,
   },
   {
@@ -127,17 +127,11 @@ function MapResizeHandler() {
   return null;
 }
 
-function yesterdayISO() {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.toISOString().slice(0, 10);
-}
-
 export default function LeafletMap({ reports = [], onReportClick }) {
   const mapRef = useRef(null);
   const [currentTileIndex, setCurrentTileIndex] = useState(0);
   const [activeLayer, setActiveLayer] = useState('streets');
-  const [nasaDate, setNasaDate] = useState(yesterdayISO);
+  const [nasaDate, setNasaDate] = useState(() => yesterdayISO());
 
   const [filters, setFilters] = useState({
     municipality: 'all',

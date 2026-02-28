@@ -1,16 +1,11 @@
 import { useState } from 'react';
 import { MUNICIPALITIES } from '../../utils/constants';
+import { yesterdayISO } from '../../utils/date';
 
 const LAYERS = [
   { id: 'streets', name: 'Streets' },
   { id: 'satellite', name: 'NASA Satellite' },
 ];
-
-function yesterdayISO() {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.toISOString().slice(0, 10);
-}
 
 export default function MapControls({
   filters,

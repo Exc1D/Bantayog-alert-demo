@@ -4,7 +4,7 @@ import { TABS, SIDEBAR_WIDTH } from '../../config/tabs';
 export default memo(function Sidebar({ activeTab, onTabChange }) {
   return (
     <aside
-      className="hidden lg:flex flex-col bg-white border-r border-border/60 h-[calc(100vh-56px)] fixed top-[56px] left-0"
+      className="hidden lg:flex flex-col bg-white dark:bg-dark-card border-r border-border/60 dark:border-dark-border h-[calc(100vh-56px)] fixed top-[56px] left-0"
       style={{ width: SIDEBAR_WIDTH }}
     >
       <nav aria-label="Main navigation" className="flex flex-col py-4">
@@ -20,7 +20,7 @@ export default memo(function Sidebar({ activeTab, onTabChange }) {
               className={`flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-all relative ${
                 isActive
                   ? 'text-accentDark bg-accent/5'
-                  : 'text-textLight hover:text-text hover:bg-stone-50'
+                  : 'text-textLight hover:text-text hover:bg-stone-50 dark:text-dark-textLight dark:hover:text-dark-text dark:hover:bg-stone-800/50'
               }`}
             >
               {tab.icon(isActive)}
@@ -33,7 +33,7 @@ export default memo(function Sidebar({ activeTab, onTabChange }) {
         })}
       </nav>
 
-      <div className="mt-auto p-4 border-t border-border/60">
+      <div className="mt-auto p-4 border-t border-border/60 dark:border-dark-border">
         <p className="text-[10px] text-textLight/60 text-center">BANTAYOG ALERT v1.0</p>
       </div>
     </aside>

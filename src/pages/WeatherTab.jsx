@@ -10,7 +10,7 @@ export default function WeatherTab() {
   return (
     <div className="max-w-[1200px] xl:max-w-[1400px] mx-auto px-3 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-6 space-y-3">
       {/* Province Header */}
-      <div className="bg-primary rounded-xl p-4 text-white dark:bg-dark-card">
+      <div className="bg-stone-800 rounded-xl p-4 text-white dark:bg-dark-card">
         <div className="flex items-center gap-2">
           <svg
             aria-hidden="true"

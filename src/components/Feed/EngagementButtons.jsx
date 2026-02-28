@@ -78,12 +78,14 @@ export default function EngagementButtons({
     'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors';
 
   return (
-    <div className="px-2 py-2 border-t border-stone-100 flex justify-around">
+    <div className="px-2 py-2 border-t border-stone-100 dark:border-dark-border flex justify-around">
       <button
         onClick={handleUpvote}
         disabled={isUpvoting}
         className={`${btnClass} ${
-          hasUpvoted ? 'bg-accent/10 text-accent' : 'hover:bg-stone-50 text-textLight'
+          hasUpvoted
+            ? 'bg-accent/10 text-accent'
+            : 'hover:bg-stone-50 dark:hover:bg-stone-800/60 text-textLight dark:text-dark-textLight'
         }`}
       >
         <svg
@@ -102,7 +104,10 @@ export default function EngagementButtons({
         {report.engagement?.upvotes || 0}
       </button>
 
-      <button onClick={handleComments} className={`${btnClass} hover:bg-stone-50 text-textLight`}>
+      <button
+        onClick={handleComments}
+        className={`${btnClass} hover:bg-stone-50 dark:hover:bg-stone-800/60 text-textLight dark:text-dark-textLight`}
+      >
         <svg
           aria-hidden="true"
           width="16"
@@ -121,7 +126,7 @@ export default function EngagementButtons({
 
       <button
         onClick={() => onViewMap && onViewMap(report)}
-        className={`${btnClass} hover:bg-stone-50 text-textLight`}
+        className={`${btnClass} hover:bg-stone-50 dark:hover:bg-stone-800/60 text-textLight dark:text-dark-textLight`}
       >
         <svg
           aria-hidden="true"
@@ -140,7 +145,10 @@ export default function EngagementButtons({
         Map
       </button>
 
-      <button onClick={handleShare} className={`${btnClass} hover:bg-stone-50 text-textLight`}>
+      <button
+        onClick={handleShare}
+        className={`${btnClass} hover:bg-stone-50 dark:hover:bg-stone-800/60 text-textLight dark:text-dark-textLight`}
+      >
         <svg
           aria-hidden="true"
           width="16"

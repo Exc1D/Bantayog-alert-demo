@@ -5,7 +5,7 @@ const ShareButton = memo(function ShareButton({ report, className = '' }) {
   const [sharing, setSharing] = useState(false);
 
   const handleShare = useCallback(async () => {
-    const disasterType = getDisasterType(report.disaster?.type);
+    const disasterType = getDisasterType(report.disaster?.type) ?? { icon: '', label: 'Report' };
     const severity = report.disaster?.severity || 'minor';
     const status = report.verification?.status || 'pending';
     const municipality = report.location?.municipality || 'Unknown';
@@ -21,23 +21,27 @@ ${report.disaster?.windSpeed ? `\n💨 Wind Speed: ${report.disaster.windSpeed} 
 
 View on Bantayog Alert`;
 
-    if (navigator.share) {
-      setSharing(true);
-      try {
+    setSharing(true);
+    try {
+      if (navigator.share) {
         await navigator.share({
           title: `Bantayog Alert - ${disasterType.label}`,
           text: text,
           url: window.location.href,
         });
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          await navigator.clipboard.writeText(text);
-        }
-      } finally {
-        setSharing(false);
+      } else {
+        await navigator.clipboard.writeText(text);
       }
-    } else {
-      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          // clipboard unavailable — silently fail
+        }
+      }
+    } finally {
+      setSharing(false);
     }
   }, [report]);
 

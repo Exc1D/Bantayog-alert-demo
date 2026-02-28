@@ -24,9 +24,45 @@ const STEP_TITLES = {
   3: 'REPORT DETAILS',
 };
 
+const STEPS = [
+  { num: 1, label: 'Type' },
+  { num: 2, label: 'Evidence' },
+  { num: 3, label: 'Details' },
+];
+
+const DRAFT_KEY = 'bantayog_report_draft';
+
+function loadDraft() {
+  try {
+    const draft = localStorage.getItem(DRAFT_KEY);
+    if (draft) {
+      return JSON.parse(draft);
+    }
+  } catch {
+    // Ignore localStorage errors
+  }
+  return null;
+}
+
+function saveDraft(data) {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+  } catch {
+    // Ignore localStorage errors
+  }
+}
+
+function clearDraft() {
+  try {
+    localStorage.removeItem(DRAFT_KEY);
+  } catch {
+    // Ignore localStorage errors
+  }
+}
+
 export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitted }) {
   const [step, setStep] = useState(1);
-  const [reportType, setReportType] = useState(null); // 'emergency' | 'situation'
+  const [reportType, setReportType] = useState(null);
   const [evidenceFiles, setEvidenceFiles] = useState([]);
   const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,6 +85,35 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
       if (anonTimeoutRef.current) clearTimeout(anonTimeoutRef.current);
     };
   }, []);
+
+  // Auto-save draft when form data changes
+  useEffect(() => {
+    if (
+      isOpen &&
+      (formData.severity || formData.description || formData.barangay || formData.street)
+    ) {
+      const draftData = { reportType, formData, manualMunicipality, step };
+      saveDraft(draftData);
+    }
+  }, [formData, reportType, manualMunicipality, step, isOpen]);
+
+  // Load draft when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const draft = loadDraft();
+      if (draft && draft.step) {
+        if (draft.formData?.severity || draft.formData?.description) {
+          setFormData(draft.formData || {});
+          setReportType(draft.reportType || null);
+          setManualMunicipality(draft.manualMunicipality || '');
+          if (draft.step > 1) {
+            setStep(draft.step);
+          }
+          addToast('Resumed from saved draft', 'info');
+        }
+      }
+    }
+  }, [isOpen, addToast]);
 
   const municipality = location
     ? resolveMunicipality(location.lat, location.lng).municipality
@@ -177,11 +242,56 @@ export default function ReportModal({ isOpen, onClose, onAnonymousReportSubmitte
     setEvidenceFiles([]);
     setFormData({});
     setManualMunicipality('');
+    clearDraft();
     onClose();
   };
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={STEP_TITLES[step]}>
+      {/* Progress Stepper */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          {STEPS.map((s, idx) => (
+            <div key={s.num} className="flex items-center flex-1">
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
+                    step > s.num
+                      ? 'bg-green-500 text-white'
+                      : step === s.num
+                        ? 'bg-accent text-white'
+                        : 'bg-stone-200 text-stone-500 dark:bg-stone-700 dark:text-stone-400'
+                  }`}
+                >
+                  {step > s.num ? (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  ) : (
+                    s.num
+                  )}
+                </div>
+                <span className="text-[10px] mt-1 font-medium text-textLight dark:text-dark-textLight">
+                  {s.label}
+                </span>
+              </div>
+              {idx < STEPS.length - 1 && (
+                <div
+                  className={`flex-1 h-0.5 mx-2 ${step > s.num ? 'bg-green-500' : 'bg-stone-200 dark:bg-stone-700'}`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
       <FeatureFlag
         flag={FEATURE_FLAGS.NEW_REPORT_FLOW}
         fallback={

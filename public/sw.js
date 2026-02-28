@@ -7,6 +7,13 @@ const MAX_APP_CACHE_SIZE = 200;
 
 const STATIC_ASSETS = ['/', '/index.html', '/manifest.json'];
 
+const TILE_HOSTNAMES = [
+  'tile.openstreetmap.org',
+  'basemaps.cartocdn.com',
+  'arcgisonline.com',
+  'gibs.earthdata.nasa.gov',
+];
+
 const OFFLINE_FALLBACKS = {
   document: '/',
 };
@@ -175,12 +182,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (
-    url.hostname.includes('tile.openstreetmap.org') ||
-    url.hostname.includes('basemaps.cartocdn.com') ||
-    url.hostname.includes('arcgisonline.com') ||
-    url.hostname.includes('gibs.earthdata.nasa.gov')
-  ) {
+  if (TILE_HOSTNAMES.some((h) => url.hostname.includes(h))) {
     event.respondWith(
       caches.open(TILE_CACHE).then((cache) =>
         cache.match(request).then((cachedResponse) => {
